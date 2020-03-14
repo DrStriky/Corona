@@ -52,6 +52,7 @@ for url in urls:
 
     data[key]['data'].columns = [country_code_map[country] for country in data[key]['data'].columns]
 
+
 # Prepare geopandas shape file for the world and europe
 worldmap = gpd.read_file(shapefile)[['ADMIN', 'ADM0_A3', 'geometry']]
 worldmap.columns = ['country', 'country_code', 'geometry']
@@ -63,9 +64,18 @@ europe = pd.read_csv(os.path.join('data', 'World_map', 'europe.csv'))
 europemap = europemap[europemap['country_code'].isin(europe['Country_Code'].to_list())]
 
 
+# Map data to map
+dummy = data['confirmed']['data'].tail(1).T
+dummy.reset_index(level=0, inplace=True)
+dummy.columns = ['country_code', 'confirmed']
+worldmap = worldmap.merge(dummy, left_on='country_code', right_on='country_code')
+europemap = europemap.merge(dummy, left_on='country_code', right_on='country_code')
+
+
 # plot the world
 f, ax = plt.subplots(1)
-worldmap.plot(ax=ax, linewidth=0.1, edgecolor='0.5')
+worldmap.plot(ax=ax, linewidth=0.1, edgecolor='0.5', cmap='viridis', legend=True, column='confirmed')
+ax.set_title('confirmed cases', fontsize=15)
 ax.set_xticklabels([])
 ax.set_yticklabels([])
 ax.set_xticks([])
@@ -74,9 +84,11 @@ ax.set_yticks([])
 plt.axis('equal')
 plt.show()
 
-#plot europe
+
+# plot europe
 f, ax = plt.subplots(1)
-europemap.plot(ax=ax, linewidth=0.1, edgecolor='0.5')
+europemap.plot(ax=ax, linewidth=0.1, edgecolor='0.5', cmap='viridis', legend=True, column='confirmed')
+ax.set_title('confirmed cases', fontsize=15)
 plt.xlim(-25, 45)
 ax.set_ylim(30, 75)
 ax.set_xticklabels([])
