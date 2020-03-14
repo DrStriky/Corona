@@ -57,6 +57,14 @@ for url in urls:
 
     data[key]['data'].columns = [country_code_map[country] for country in data[key]['data'].columns]
 
+# load countries population data from worldbank 2018
+population_file = os.path.join('data', 'Worldbank', 'Population', 'API_SP.POP.TOTL_DS2_en_csv_v2_821007.csv')
+population = pd.read_csv(population_file, skiprows=4, index_col=1)['2018']
+
+# normalize infections by population
+data['confirmedPerCapita'] = dict()
+data['confirmedPerCapita']['data'] = data['confirmed']['data'].div(population)
+
 
 # Prepare geopandas shape file for the world and europe
 worldmap = gpd.read_file(shapefile)[['ADMIN', 'ADM0_A3', 'geometry']]
@@ -70,16 +78,20 @@ europemap = europemap[europemap['country_code'].isin(europe['Country_Code'].to_l
 
 
 # Map data to map
-dummy = data['confirmed']['data'].tail(1).T
+dummy = data['confirmedPerCapita']['data'].tail(1).T
 dummy.reset_index(level=0, inplace=True)
 dummy.columns = ['country_code', 'confirmed']
 worldmap = worldmap.merge(dummy, left_on='country_code', right_on='country_code')
 europemap = europemap.merge(dummy, left_on='country_code', right_on='country_code')
 
+# colormap
+cmap = plt.cm.get_cmap('viridis')
+cmap.set_bad('white',1.)
+cmap.set_over('red')
 
 # plot the world
 f, ax = plt.subplots(1)
-worldmap.plot(ax=ax, linewidth=0.1, edgecolor='0.5', cmap='viridis', legend=True, column='confirmed')
+worldmap.plot(ax=ax, linewidth=0.1, edgecolor='0.5', cmap=cmap, legend=True, column='confirmed', vmax=np.nanquantile(europemap.confirmed, q=0.95))
 ax.set_title('confirmed cases', fontsize=15)
 ax.set_xticklabels([])
 ax.set_yticklabels([])
@@ -92,7 +104,7 @@ plt.show()
 
 # plot europe
 f, ax = plt.subplots(1)
-europemap.plot(ax=ax, linewidth=0.1, edgecolor='0.5', cmap='viridis', legend=True, column='confirmed')
+europemap.plot(ax=ax, linewidth=0.1, edgecolor='0.5', cmap=cmap, legend=True, column='confirmed', vmax=np.nanquantile(europemap.confirmed, q=0.95))
 ax.set_title('confirmed cases', fontsize=15)
 plt.xlim(-25, 45)
 ax.set_ylim(30, 75)
