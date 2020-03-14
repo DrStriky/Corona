@@ -109,5 +109,3 @@ def load_covid19_data():
 
     return data
 
-
-tmp = load_covid19_data()
