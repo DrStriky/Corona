@@ -1,12 +1,6 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sat Mar 14 15:07:49 2020
-
-"""
-
 import geopandas as gpd
 import pandas as pd
-import matplotlib as plt
+import matplotlib.pyplot as plt
 import numpy as np
 
 import os
@@ -58,9 +52,36 @@ for url in urls:
 
     data[key]['data'].columns = [country_code_map[country] for country in data[key]['data'].columns]
 
-# Prepare geopandas shape file
-gdf = gpd.read_file(shapefile)[['ADMIN', 'ADM0_A3', 'geometry']]
-gdf.columns = ['country', 'country_code', 'geometry']
-gdf.drop(gdf[gdf['country'] == 'Antarctica'].index, inplace=True)
+# Prepare geopandas shape file for the world and europe
+worldmap = gpd.read_file(shapefile)[['ADMIN', 'ADM0_A3', 'geometry']]
+worldmap.columns = ['country', 'country_code', 'geometry']
+worldmap.drop(worldmap[worldmap['country'] == 'Antarctica'].index, inplace=True)
 
-gdf.plot()
+europemap = gpd.read_file(shapefile)[['ADMIN', 'ADM0_A3', 'geometry']]
+europemap.columns = ['country', 'country_code', 'geometry']
+europe = pd.read_csv(os.path.join('data', 'World_map', 'europe.csv'))
+europemap = europemap[europemap['country_code'].isin(europe['Country_Code'].to_list())]
+
+
+# plot the world
+f, ax = plt.subplots(1)
+worldmap.plot(ax=ax, linewidth=0.1, edgecolor='0.5')
+ax.set_xticklabels([])
+ax.set_yticklabels([])
+ax.set_xticks([])
+ax.set_yticks([])
+
+plt.axis('equal')
+plt.show()
+
+#plot europe
+f, ax = plt.subplots(1)
+europemap.plot(ax=ax, linewidth=0.1, edgecolor='0.5')
+plt.xlim(-25, 45)
+ax.set_ylim(30, 75)
+ax.set_xticklabels([])
+ax.set_yticklabels([])
+ax.set_xticks([])
+ax.set_yticks([])
+
+plt.show()
