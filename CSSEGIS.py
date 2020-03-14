@@ -3,6 +3,11 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
+from bokeh.io import output_notebook, show, output_file
+from bokeh.plotting import figure
+from bokeh.models import GeoJSONDataSource, LinearColorMapper, ColorBar
+from bokeh.palettes import brewer
+
 import os
 import requests
 import time
