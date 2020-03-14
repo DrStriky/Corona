@@ -22,9 +22,14 @@ shapefile = os.path.join('data', 'World_map', 'ne_50m_admin_0_countries.shp')
 
 data = dict()
 
+# create country to country code map
+country_meta_file = os.path.join('data', 'Comtrade Country Code and ISO list.csv')
+country_code_map = pd.read_csv(country_meta_file, index_col = 0)
+country_code_map = country_code_map['ISO3-digit Alpha']
+
 # Download if necessary and normalize Covid-19 data
 for url in urls:
-    key = os.path.splitext(os.path.basename(url))[0].split('-')[-1]
+    key = os.path.splitext(os.path.basename(url))[0].split('-')[-1].lower()
     data[key] = dict()
     data[key]['url'] = url
     data[key]['file'] = os.path.join('data', 'CSSEGISandData', os.path.basename(url))
@@ -49,7 +54,9 @@ for url in urls:
 
     data[key]['data_complete'] = pd.DataFrame(dummy.loc[4:, :].to_numpy(), index=index, columns=columns)
     data[key]['data'] = data[key]['data_complete'].groupby(['Country/Region'], axis=1).sum()
+    data[key]['data'].drop('Cruise Ship', axis=1, inplace=True)
 
+    data[key]['data'].columns = [country_code_map[country] for country in data[key]['data'].columns]
 
 # Prepare geopandas shape file
 gdf = gpd.read_file(shapefile)[['ADMIN', 'ADM0_A3', 'geometry']]
