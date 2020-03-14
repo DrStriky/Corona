@@ -11,27 +11,32 @@ import numpy as np
 
 import os
 import requests
+import time
 
 
 urls = ['https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv',
         'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Deaths.csv',
         'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Recovered.csv']
 
+shapefile = os.path.join('data', 'World_map', 'ne_50m_admin_0_countries.shp')
+
 data = dict()
 
-# Download and normalize data
-print('Beginning file download with requests')
+# Download if necessary and normalize Covid-19 data
 for url in urls:
-    with open(os.path.join('data', 'CSSEGISandData', os.path.basename(url)), 'wb') as f:
-        r = requests.get(url)
-        f.write(r.content)
-
     key = os.path.splitext(os.path.basename(url))[0].split('-')[-1]
     data[key] = dict()
-    data[key]['file'] = url
+    data[key]['url'] = url
+    data[key]['file'] = os.path.join('data', 'CSSEGISandData', os.path.basename(url))
+
+    if time.time()-os.path.getmtime(data[key]['file']) > 60*60*12:
+        print('Beginning file download with requests')
+        with open(data[key]['file'], 'wb') as f:
+            r = requests.get(url)
+            f.write(r.content)
 
     # import infected date --> Transpose, multiindex, grouby country
-    dummy = pd.read_csv(os.path.join('data', 'CSSEGISandData', 'time_series_19-covid-Confirmed.csv'))
+    dummy = pd.read_csv(data[key]['file'])
 
     dummy = dummy.T
     dummy.reset_index(inplace=True)
@@ -46,3 +51,9 @@ for url in urls:
     data[key]['data'] = data[key]['data_complete'].groupby(['Country/Region'], axis=1).sum()
 
 
+# Prepare geopandas shape file
+gdf = gpd.read_file(shapefile)[['ADMIN', 'ADM0_A3', 'geometry']]
+gdf.columns = ['country', 'country_code', 'geometry']
+gdf.drop(gdf[gdf['country'] == 'Antarctica'].index, inplace=True)
+
+gdf.plot()
