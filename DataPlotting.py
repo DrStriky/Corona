@@ -41,21 +41,22 @@ def plotdata(data, title, ylabel, date=date.today()-timedelta(days=1), quantile=
     worldmap = worldmap.merge(dummy, left_on='country_code', right_on='country_code')
     europemap = europemap.merge(dummy, left_on='country_code', right_on='country_code')
 
-    # plot the world
-    f, ax = plt.subplots(1)
-    worldmap.plot(ax=ax, linewidth=0.1, edgecolor='0.5', cmap=cmap, legend=True, column='confirmed', vmax=np.nanquantile(europemap.confirmed, q=quantile))
-    ax.set_title(title, fontsize=10)
-    ax.set_xticklabels([])
-    ax.set_yticklabels([])
-    ax.set_xticks([])
-    ax.set_yticks([])
+    # # plot the world
+    # f, ax = plt.subplots(1)
+    # worldmap.plot(ax=ax, linewidth=0.1, edgecolor='0.5', cmap=cmap, legend=True, column='confirmed', vmax=np.nanquantile(europemap.confirmed, q=quantile))
+    # ax.set_title(title, fontsize=10)
+    # ax.set_xticklabels([])
+    # ax.set_yticklabels([])
+    # ax.set_xticks([])
+    # ax.set_yticks([])
 
-    plt.axis('equal')
-    plt.show()
+    # plt.axis('equal')
+    # plt.show()
 
     # plot europe
     f, ax = plt.subplots(1)
-    europemap.plot(ax=ax, linewidth=0.1, edgecolor='0.5', cmap=cmap, legend=True, column='confirmed', vmax=np.nanquantile(europemap.confirmed, q=quantile))
+    europemap.plot(ax=ax, linewidth=0.1, edgecolor='0.5', cmap=cmap, column='confirmed', vmin=0, vmax=np.nanquantile(europemap.confirmed, q=quantile),
+                   legend=True, legend_kwds={'label': ylabel, 'orientation': "horizontal", 'extend': 'max', 'pad': 0.01, 'aspect': 50, 'fraction': 0.03})
     ax.set_title(title, fontsize=10)
     plt.xlim(-25, 45)
     ax.set_ylim(30, 75)
@@ -64,5 +65,7 @@ def plotdata(data, title, ylabel, date=date.today()-timedelta(days=1), quantile=
     ax.set_xticks([])
     ax.set_yticks([])
     ax.set_aspect('equal', 'box')
+    
+    # extend='max'
 
     plt.show()
