@@ -22,3 +22,6 @@ plotdata(data['deaths_nzd']['data'], title='deaths (normalized)', ylabel='death/
 plotdata((data['deaths_nzd']['data']/data['confirmed_nzd']['data']).replace([np.inf, -np.inf], np.nan), title='deaths per confirmed', ylabel='death/confirmed')
 
 plotdata(data['confirmed_nzd']['data'].diff()/(data['confirmed_nzd']['data']-data['confirmed_nzd']['data'].diff()), title='spreading rate per day', ylabel='spreading rate/day', smoothdays=2)
+
+
+data['confirmed']['data']['ITA'].plot()
