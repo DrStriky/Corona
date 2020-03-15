@@ -16,9 +16,9 @@ from DataPlotting import plotdata
 
 data = load_covid19_data()
 
-plotdata(data['confirmed_nzd']['data'], title='confirmed (normalized)')
-plotdata(data['deaths_nzd']['data'], title='deaths (normalized)')
+plotdata(data['confirmed_nzd']['data'], title='confirmed (normalized)', ylabel='confirmend/capita (%)')
+plotdata(data['deaths_nzd']['data'], title='deaths (normalized)', ylabel='death/capita (%)')
 
-plotdata((data['deaths_nzd']['data']/data['confirmed_nzd']['data']).replace([np.inf, -np.inf], np.nan), title='deaths per confirmed (normalized)')
+plotdata((data['deaths_nzd']['data']/data['confirmed_nzd']['data']).replace([np.inf, -np.inf], np.nan), title='deaths per confirmed', ylabel='death/confirmed')
 
-plotdata(data['confirmed_nzd']['data'].diff()/(data['confirmed_nzd']['data']-data['confirmed_nzd']['data'].diff()), title='spreading rate (normalized)', smoothdays=2)
+plotdata(data['confirmed_nzd']['data'].diff()/(data['confirmed_nzd']['data']-data['confirmed_nzd']['data'].diff()), title='spreading rate per day', ylabel='spreading rate/day', smoothdays=2)

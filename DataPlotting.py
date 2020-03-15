@@ -15,7 +15,7 @@ import os
 shapefile = os.path.join('data', 'World_map', 'ne_50m_admin_0_countries.shp')
 
 
-def plotdata(data, title, date=(datetime.today()-timedelta(days=1)).strftime('%#m/%#d/%y'), quantile=0.95, smoothdays=1):
+def plotdata(data, title, ylabel, date=(datetime.today()-timedelta(days=1)).strftime('%#m/%#d/%y'), quantile=0.95, smoothdays=1):
     # Prepare geopandas shape file for the world and europe
     worldmap = gpd.read_file(shapefile)[['ADMIN', 'ADM0_A3', 'geometry']]
     worldmap.columns = ['country', 'country_code', 'geometry']
@@ -63,5 +63,6 @@ def plotdata(data, title, date=(datetime.today()-timedelta(days=1)).strftime('%#
     ax.set_yticklabels([])
     ax.set_xticks([])
     ax.set_yticks([])
+    ax.set_aspect('equal', 'box')
 
     plt.show()
