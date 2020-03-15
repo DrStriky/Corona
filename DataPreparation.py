@@ -10,6 +10,7 @@ import pandas as pd
 import os
 import requests
 import time
+import json
 
 
 # urls for downloading data from John Hopkins University
@@ -28,6 +29,14 @@ def load_country_code_map():
     return country_code_map
 
 
+def load_country_correction():
+    """ load and create country correction to properly map data to countries"""
+    with open(os.path.join('data', 'Country_correction.json')) as f:
+        country_correction = json.load(f)
+
+    return country_correction
+
+
 def load_cssegis_data(key):
     """ load and possibly update corona pandemics data from John Hopkins
     university """
@@ -40,11 +49,17 @@ def load_cssegis_data(key):
     if time.time()-os.path.getmtime(data['file']) > 60*60*12:
         print('Beginning file download with requests')
         with open(data['file'], 'wb') as f:
-            r = requests.get(url[key])
+            r = requests.get(urls[key])
             f.write(r.content)
-        
+
     # import infected date --> Transpose, multiindex, grouby country
     dummy = pd.read_csv(data['file'])
+
+    # fix 'wrong' data
+    country_corrections = load_country_correction()
+    for key, value in country_corrections['To Country'].items():
+        dummy.at[dummy[dummy['Country/Region'] == key].index, 'Province/State'] = country_corrections['To Country'][key]['Province/State']
+        dummy.at[dummy[dummy['Country/Region'] == key].index, 'Country/Region'] = country_corrections['To Country'][key]['Country/Region']
 
     dummy = dummy.T
     dummy.reset_index(inplace=True)
@@ -108,4 +123,3 @@ def load_covid19_data():
     data.update(data_nzd)
 
     return data
-

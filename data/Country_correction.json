@@ -1,0 +1,12 @@
+{
+	"To Country": {
+		"Guernsey": {
+			"Province/State": "Guernsey",
+			"Country/Region": "United Kingdom"
+		},
+		"Jersey": {
+			"Province/State": "Jersey",
+			"Country/Region": "United Kingdom"
+		}
+	}
+}

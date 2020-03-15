@@ -19,5 +19,7 @@ from DataPlotting import plotdata
 data = load_covid19_data()
 
 plotdata(data['confirmed_nzd']['data'], title='confirmed per capita')
+plotdata(data['deaths_nzd']['data'], title='deaths per capita')
 
 
+plotdata(data['confirmed_nzd']['data'].divide(data['deaths_nzd']['data']), title='deaths per capita')
