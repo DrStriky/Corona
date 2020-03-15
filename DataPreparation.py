@@ -78,6 +78,7 @@ def load_cssegis_data(key):
     country_code_map = load_country_code_map()
     data['data'].columns = [country_code_map[country] for country in data['data'].columns]
 
+    data['data'].index = pd.to_datetime(data['data'].index)
     return data
 
 
