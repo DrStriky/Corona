@@ -7,6 +7,10 @@
 		"Jersey": {
 			"Province/State": "Jersey",
 			"Country/Region": "United Kingdom"
+		},
+		"Congo (Brazzaville)": {
+			"Province/State": "Congo (Brazzaville)",
+			"Country/Region": "Democratic Republic of the Congo"
 		}
 	}
 }

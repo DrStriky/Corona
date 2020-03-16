@@ -65,7 +65,5 @@ def plotdata(data, title, ylabel, date=date.today()-timedelta(days=1), quantile=
     ax.set_xticks([])
     ax.set_yticks([])
     ax.set_aspect('equal', 'box')
-    
-    # extend='max'
 
     plt.show()
