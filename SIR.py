@@ -18,6 +18,7 @@ def SIRmodel(data, country, parameter, output=False, forecast=150):
     for day in range(1, forecast+1):
         beta = parameter['betagamma'].iloc[parameter['betagamma'].index.get_loc(parameter['t0'] + timedelta(days=day), method='pad')]['beta']
         gamma = parameter['betagamma'].iloc[parameter['betagamma'].index.get_loc(parameter['t0'] + timedelta(days=day), method='pad')]['gamma']
+        print(day, beta)
         SIR_data.at[parameter['t0'] + timedelta(days=day), 'S'] = SIR_data.at[parameter['t0'] + timedelta(days=day-1), 'S']+(-beta*SIR_data.at[parameter['t0'] + timedelta(days=day-1), 'S']*SIR_data.at[parameter['t0'] + timedelta(days=day-1), 'I']/data['population'].at[country])
         SIR_data.at[parameter['t0'] + timedelta(days=day), 'I'] = SIR_data.at[parameter['t0'] + timedelta(days=day-1), 'I']+(beta*SIR_data.at[parameter['t0'] + timedelta(days=day-1), 'S']*SIR_data.at[parameter['t0'] + timedelta(days=day-1), 'I']/data['population'].at[country])-gamma*SIR_data.at[parameter['t0'] + timedelta(days=day-1), 'I']
         SIR_data.at[parameter['t0'] + timedelta(days=day), 'R'] = SIR_data.at[parameter['t0'] + timedelta(days=day-1), 'R']+gamma*SIR_data.at[parameter['t0'] + timedelta(days=day-1), 'I']

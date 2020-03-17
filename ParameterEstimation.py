@@ -48,6 +48,6 @@ def parameterestimation(data, country, threshold=3, output=False, forecast=50):
 
 
 def addmeasures(parameter, date, scaling):
-    parameter['betagamma'].append(pd.DataFrame({'beta': parameter['betagamma'].iloc[0]['beta']*scaling, 'gamma': parameter['betagamma'].iloc[0]['gamma']}, index=[date]), sort=True)
+    parameter['betagamma'] = parameter['betagamma'].append(pd.DataFrame({'beta': parameter['betagamma'].iloc[0]['beta']*scaling, 'gamma': parameter['betagamma'].iloc[0]['gamma']}, index=[date]), sort=True)
 
     return parameter

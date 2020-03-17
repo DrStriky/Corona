@@ -36,5 +36,5 @@ parameter = parameterestimation(data['confirmed']['data'], 'ITA', output=True)
 SIRmodel(data, 'ITA', parameter, forecast=150, output=True)
 
 parameter = parameterestimation(data['confirmed']['data'], 'AUT', output=True)
-parameter = addmeasures(parameter, date(2020, 3, 16), 0.1)
+parameter = addmeasures(parameter, date(2020, 3, 16), 0.5)
 SIRmodel(data, 'AUT', parameter, forecast=150, output=True)
