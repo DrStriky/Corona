@@ -33,7 +33,7 @@ def plotdata(data, title, ylabel, date=date.today()-timedelta(days=1), quantile=
 
     # Map data to map
     dates = [date]
-    for i in range(1, 2):
+    for i in range(1, smoothdays):
         dates.append(date-timedelta(days=i))
     dummy = data.loc[dates, :].mean().to_frame()
     dummy.reset_index(level=0, inplace=True)
