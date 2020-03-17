@@ -3,15 +3,11 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
-import os
+from datetime import datetime
 
-from datetime import date, timedelta, date
-from scipy.optimize import curve_fit
-
-from bokeh.io import output_notebook, show, output_file
-from bokeh.plotting import figure
-from bokeh.models import GeoJSONDataSource, LinearColorMapper, ColorBar
-from bokeh.palettes import brewer
+import dash
+import dash_core_components as dcc
+import dash_html_components as html
 
 from DataPreparation import load_covid19_data
 from DataPlotting import plotdata
@@ -33,8 +29,40 @@ plotdata(data['confirmed_nzd']['data'].diff().div((data['confirmed_nzd']['data']
 
 
 parameter = parameterestimation(data['confirmed']['data'], 'ITA', output=True)
-SIRmodel(data, 'ITA', parameter, forecast=150, output=True)
+SIRmodel(data, 'ITA', parameter, forecast=300, output=True)
+parameter = addmeasures(parameter, datetime(2020, 3, 8), 0.6)
+SIRmodel(data, 'ITA', parameter, forecast=300, output=True)
 
 parameter = parameterestimation(data['confirmed']['data'], 'AUT', output=True)
-parameter = addmeasures(parameter, date(2020, 3, 16), 0.5)
-SIRmodel(data, 'AUT', parameter, forecast=150, output=True)
+SIRmodel(data, 'AUT', parameter, forecast=300, output=True)
+parameter = addmeasures(parameter, datetime(2020, 3, 8), 0.6)
+SIR_data = SIRmodel(data, 'AUT', parameter, forecast=300, output=True)
+
+
+
+external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
+
+app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+
+app.layout = html.Div(children=[
+    html.H1(children='Covid-19 Dashboard (Are we gonna die?)'),
+
+    html.Div(children='Programmed by Jonathan & Florian under quarantine in dash'),
+
+    dcc.Graph(
+        id='example-graph',
+        figure={
+            'data': [
+                {'x': SIR_data.index, 'y': SIR_data['S'].values, 'type': 'line', 'name': 'S'},
+                {'x': SIR_data.index, 'y': SIR_data['I'].values, 'type': 'line', 'name': 'I'},
+                {'x': SIR_data.index, 'y': SIR_data['R'].values, 'type': 'line', 'name': 'R'},
+            ],
+            'layout': {
+                'title': 'SIR model for AUT'
+            }
+        }
+    )
+])
+
+if __name__ == '__main__':
+    app.run_server(debug=False)
