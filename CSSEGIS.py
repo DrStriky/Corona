@@ -54,7 +54,7 @@ app.layout = html.Div([html.Div([html.H1("Covid-19 data by country")],
                                 style={'textAlign': "center", "padding-bottom": "30"}),
                        html.Div([html.Span("Metric to display : ", className="six columns",
                                            style={"text-align": "right", "width": "40%", "padding-top": 10}),
-                                 dcc.Dropdown(id="value-selected", value='confirmed',
+                                 dcc.Dropdown(id="metric-selected", value='confirmed',
                                               options=[{'label': "infected", 'value': 'confirmed'},
                                                        {'label': "infected normalizied", 'value': 'confirmed_nzd'},
                                                        {'label': "recovered", 'value': 'recovered'},
@@ -70,10 +70,10 @@ app.layout = html.Div([html.Div([html.H1("Covid-19 data by country")],
 
 @app.callback(
     dash.dependencies.Output("my-graph", "figure"),
-    [dash.dependencies.Input("value-selected", "value")]
+    [dash.dependencies.Input("metric-selected", "value"), dash.dependencies.Input("metric-selected", "options"),]
 )
 
-def update_figure(selected):
+def update_figure(selected, options):
     def title(text):
         if text == "pop":
             return "Population (million)"
@@ -82,12 +82,14 @@ def update_figure(selected):
         else:
             return "Life Expectancy (Years)"
     trace = go.Choropleth(locations=data[selected]['data'].T.index,  # Spatial coordinates
-                          z=data[selected]['data'].T[date.today()-timedelta(days=1)],  # Data to be color-coded
+                          z=data[selected]['data'].T[date.today()-timedelta(days=2)],  # Data to be color-coded
                           locationmode='ISO-3',  # set of locations match entries in `locations`
-                          colorscale='Reds',
-                          colorbar_title="confirmed_nzd",)
+                          colorscale='Viridis_r',
+                          zmin=0,
+                          zmax=np.nanquantile(data[selected]['data'].T[date.today()-timedelta(days=2)], q=0.95),
+                          colorbar_title=[entry['label'] for entry in options if entry['value']==selected][0])
     return {"data": [trace],
-            "layout": go.Layout(title=title(selected), height=800, geo={'showframe': False, 'showcoastlines': False, 'projection': {'type': "miller"}})}
+            "layout": go.Layout(title=[entry['label'] for entry in options if entry['value']==selected][0], height=800, geo={'showframe': False, 'showcoastlines': False, 'projection': {'type': "miller"}})}
 
 
 if __name__ == '__main__':
