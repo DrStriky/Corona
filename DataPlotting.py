@@ -43,7 +43,8 @@ def plotdata(data, title, ylabel, date=date.today()-timedelta(days=1), quantile=
 
     # # plot the world
     # f, ax = plt.subplots(1)
-    # worldmap.plot(ax=ax, linewidth=0.1, edgecolor='0.5', cmap=cmap, legend=True, column='confirmed', vmax=np.nanquantile(europemap.confirmed, q=quantile))
+    # worldmap.plot(ax=ax, linewidth=0.1, edgecolor='0.5', cmap=cmap, column='confirmed', vmin=0, vmax=np.nanquantile(worldmap.confirmed, q=quantile),
+    #                legend=True, legend_kwds={'label': ylabel, 'orientation': "horizontal", 'extend': 'max', 'pad': 0.01, 'aspect': 50, 'fraction': 0.03})
     # ax.set_title(title, fontsize=10)
     # ax.set_xticklabels([])
     # ax.set_yticklabels([])

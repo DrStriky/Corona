@@ -10,7 +10,14 @@
 		},
 		"Congo (Brazzaville)": {
 			"Province/State": "Congo (Brazzaville)",
-			"Country/Region": "Democratic Republic of the Congo"
+			"Country/Region": "Republic of the Congo"
+		},
+		"Puerto Rico": {
+			"Province/State": "Puerto Rico",
+			"Country/Region": "US"
 		}
-	}
+		
+	},
+	"To_drop": [ "xxx", "xxx", "xxx" ]
+		
 }

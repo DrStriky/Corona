@@ -122,5 +122,6 @@ def load_covid19_data():
         data_nzd[key+'_nzd'] = {'data': normalize_by_population(df=data[key], population=population)}
 
     data.update(data_nzd)
+    data['population'] = population
 
     return data
