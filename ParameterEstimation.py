@@ -26,10 +26,12 @@ def parameterestimation(data, country, threshold=3, output=False, forecast=50):
 
     gamma = 1/15
     beta = result_confirmed[1]+gamma
-    t0 = data_confirmed_start_date  # ?????
+    t0 = data_confirmed_start_date
     I0 = result_confirmed[0]*result_confirmed[1]/gamma
+    betagamma = pd.DataFrame({'beta': beta, 'gamma': gamma}, index=[t0])
 
     if output:
+        print(country)
         print(f'ɣ: {gamma}')
         print(f'β: {beta}')
         print(f'I₀: {I0}')
@@ -42,4 +44,10 @@ def parameterestimation(data, country, threshold=3, output=False, forecast=50):
         plt.grid(which='both')
         plt.show()
 
-    return {'beta': beta, 'gamma': gamma, 'I0': I0, 't0': t0}
+    return {'I0': I0, 't0': t0, 'betagamma': betagamma}
+
+
+def addmeasures(parameter, date, scaling):
+    parameter['betagamma'].append(pd.DataFrame({'beta': parameter['betagamma'].iloc[0]['beta']*scaling, 'gamma': parameter['betagamma'].iloc[0]['gamma']}, index=[date]), sort=True)
+
+    return parameter

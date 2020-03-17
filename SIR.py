@@ -16,9 +16,12 @@ def SIRmodel(data, country, parameter, output=False, forecast=150):
     SIR_data.loc[parameter['t0']] = {'S': data['population'].at[country], 'I': parameter['I0'], 'R': 0}
 
     for day in range(1, forecast+1):
-        SIR_data.at[parameter['t0'] + timedelta(days=day), 'S'] = SIR_data.at[parameter['t0'] + timedelta(days=day-1), 'S']+(-parameter['beta']*SIR_data.at[parameter['t0'] + timedelta(days=day-1), 'S']*SIR_data.at[parameter['t0'] + timedelta(days=day-1), 'I']/data['population'].at[country])
-        SIR_data.at[parameter['t0'] + timedelta(days=day), 'I'] = SIR_data.at[parameter['t0'] + timedelta(days=day-1), 'I']+(parameter['beta']*SIR_data.at[parameter['t0'] + timedelta(days=day-1), 'S']*SIR_data.at[parameter['t0'] + timedelta(days=day-1), 'I']/data['population'].at[country])-parameter['gamma']*SIR_data.at[parameter['t0'] + timedelta(days=day-1), 'I']
-        SIR_data.at[parameter['t0'] + timedelta(days=day), 'R'] = SIR_data.at[parameter['t0'] + timedelta(days=day-1), 'R']+parameter['gamma']*SIR_data.at[parameter['t0'] + timedelta(days=day-1), 'I']
+        beta = parameter['betagamma'].iloc[parameter['betagamma'].index.get_loc(parameter['t0'] + timedelta(days=day), method='pad')]['beta']
+        gamma = parameter['betagamma'].iloc[parameter['betagamma'].index.get_loc(parameter['t0'] + timedelta(days=day), method='pad')]['gamma']
+        SIR_data.at[parameter['t0'] + timedelta(days=day), 'S'] = SIR_data.at[parameter['t0'] + timedelta(days=day-1), 'S']+(-beta*SIR_data.at[parameter['t0'] + timedelta(days=day-1), 'S']*SIR_data.at[parameter['t0'] + timedelta(days=day-1), 'I']/data['population'].at[country])
+        SIR_data.at[parameter['t0'] + timedelta(days=day), 'I'] = SIR_data.at[parameter['t0'] + timedelta(days=day-1), 'I']+(beta*SIR_data.at[parameter['t0'] + timedelta(days=day-1), 'S']*SIR_data.at[parameter['t0'] + timedelta(days=day-1), 'I']/data['population'].at[country])-gamma*SIR_data.at[parameter['t0'] + timedelta(days=day-1), 'I']
+        SIR_data.at[parameter['t0'] + timedelta(days=day), 'R'] = SIR_data.at[parameter['t0'] + timedelta(days=day-1), 'R']+gamma*SIR_data.at[parameter['t0'] + timedelta(days=day-1), 'I']
+
     if output:
         SIR_data.plot(title=country, grid=True)
         plt.show()
