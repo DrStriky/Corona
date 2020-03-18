@@ -37,10 +37,10 @@ data = load_covid19_data()
 # parameter = addmeasures(parameter, datetime(2020, 3, 8), 0.6)
 # SIRmodel(data, 'ITA', parameter, forecast=300, output=True)
 
-# parameter = parameterestimation(data['confirmed']['data'], 'AUT', output=True)
-# SIRmodel(data, 'AUT', parameter, forecast=300, output=True)
-# parameter = addmeasures(parameter, datetime(2020, 3, 8), 0.6)
-# SIR_data = SIRmodel(data, 'AUT', parameter, forecast=300, output=True)
+parameter = parameterestimation(data['confirmed']['data'], 'AUT', output=True)
+SIRmodel(data, 'AUT', parameter, forecast=300, output=True)
+parameter = addmeasures(parameter, date(2020, 3, 8), 0.6)
+SIR_data = SIRmodel(data, 'AUT', parameter, forecast=300, output=True)
 
 
 
@@ -84,7 +84,7 @@ def update_figure(selected, options):
     trace = go.Choropleth(locations=data[selected]['data'].T.index,  # Spatial coordinates
                           z=data[selected]['data'].T[date.today()-timedelta(days=2)],  # Data to be color-coded
                           locationmode='ISO-3',  # set of locations match entries in `locations`
-                          colorscale='Viridis_r',
+                          colorscale='Viridis',
                           zmin=0,
                           zmax=np.nanquantile(data[selected]['data'].T[date.today()-timedelta(days=2)], q=0.95),
                           colorbar_title=[entry['label'] for entry in options if entry['value']==selected][0])
