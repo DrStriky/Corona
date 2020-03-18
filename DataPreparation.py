@@ -106,7 +106,7 @@ def normalize_by_population(df, population=load_population()):
     """ Transforms cases into percentage of countries population data
     (worldbank, 2018)
     """
-    df_normalized = df['data'].div(population) * 100
+    df_normalized = df['data'].div(population)
     return df_normalized
 
 

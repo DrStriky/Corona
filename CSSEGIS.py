@@ -3,13 +3,12 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
-from datetime import datetime, timedelta, date
+from datetime import timedelta, date
 from time import mktime
 
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
-import plotly.express as px
 import plotly.graph_objs as go
 
 from DataPreparation import load_covid19_data
@@ -38,10 +37,10 @@ data = load_covid19_data()
 # parameter = addmeasures(parameter, datetime(2020, 3, 8), 0.6)
 # SIRmodel(data, 'ITA', parameter, forecast=300, output=True)
 
-parameter = parameterestimation(data['confirmed']['data'], 'AUT', output=True)
-SIRmodel(data, 'AUT', parameter, forecast=300, output=True)
-parameter = addmeasures(parameter, date(2020, 3, 8), 0.6)
-SIR_data = SIRmodel(data, 'AUT', parameter, forecast=300, output=True)
+# parameter = parameterestimation(data['confirmed']['data'], 'AUT', output=True)
+# SIRmodel(data, 'AUT', parameter, forecast=300, output=True)
+# parameter = addmeasures(parameter, date(2020, 3, 8), 0.6)
+# SIR_data = SIRmodel(data, 'AUT', parameter, forecast=300, output=True)
 
 # Dash part
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
@@ -51,7 +50,7 @@ app.layout = html.Div([html.Div([html.H1('Covid-19 data by country')],
                        html.Div(children='Programmed by Jonathan & Florian under quarantine in dash'),
                        html.Div([html.Span('Metric to display : ', className='six columns',
                                            style={'text-align': 'right', 'width': '40%', 'padding-top': 10}),
-                                 dcc.Dropdown(id='metric-selected', value='confirmed',
+                                 dcc.Dropdown(id='metric-selected', value='confirmed_nzd',
                                               options=[{'label': 'infected', 'value': 'confirmed'},
                                                        {'label': 'infected normalizied', 'value': 'confirmed_nzd'},
                                                        {'label': 'recovered', 'value': 'recovered'},
@@ -70,32 +69,49 @@ app.layout = html.Div([html.Div([html.H1('Covid-19 data by country')],
                                             marks={int(mktime(xx.timetuple())): {'label': xx.isoformat(), 'style': {'writing-mode': 'vertical-rl', 'text-orientation': 'use-glyph-orientation'}} for xx in data['recovered_nzd']['data'][np.arange(len(data['recovered_nzd']['data'])) % 2 == 0].index},
                                             )], style={'marginBottom': '5em'}
                                 ),
-                       html.Div([dcc.Graph(id='graph_map')], style={'display': 'inline-block', 'width': '49%', 'vertical-align': 'top'}),
-                       html.Div([dcc.Graph(id='graph_data',
-                                 figure={'data': [
-                                     {'x': SIR_data.index, 'y': SIR_data['S'].values, 'type': 'line', 'name': 'S'},
-                                     {'x': SIR_data.index, 'y': SIR_data['I'].values, 'type': 'line', 'name': 'I'},
-                                     {'x': SIR_data.index, 'y': SIR_data['R'].values, 'type': 'line', 'name': 'R'}],
-                                     'layout': {'title': 'SIR model for AUT'}
-                                     }
-                                 ),
-                                 dcc.Graph(id='graph_model',
-                                 figure={'data': [
-                                     {'x': SIR_data.index, 'y': SIR_data['S'].values, 'type': 'line', 'name': 'S'},
-                                     {'x': SIR_data.index, 'y': SIR_data['I'].values, 'type': 'line', 'name': 'I'},
-                                     {'x': SIR_data.index, 'y': SIR_data['R'].values, 'type': 'line', 'name': 'R'}],
-                                     'layout': {'title': 'SIR model for AUT'}
-                                     }
-                                 )], style={'display': 'inline-block', 'width': '49%'})
-                       ], className='container', style={'width': '1500px', 'max-width': '1700px'})
+                       html.Div([dcc.Graph(id='graph_map', hoverData={'points': [{'location': 'AUT'}]})
+                                 ], style={'display': 'inline-block', 'width': '49%', 'vertical-align': 'top'}),
+                       html.Div([dcc.Graph(id='graph_data'),
+                                 dcc.Graph(id='graph_model')
+                                 ], style={'display': 'inline-block', 'width': '49%'})
+                       ], className='container', style={'width': '1700px', 'max-width': '1700px'})
+
+
+def create_data_series(data, country, title):
+    return {
+        'data': [dict(
+            x=data.index,
+            y=data[country],
+            mode='lines+markers'
+        )],
+        'layout': {
+            'height': '350px',
+            'title': {'text': title+' for '+country},
+            'yaxis': {'showgrid': True},
+            'xaxis': {'showgrid': True}
+        }
+    }
+
+
+def create_model_series(data, country, title):
+    return {
+        'data': [dict(x=data.index, y=data['S'], mode='lines+markers', name='Susceptible'),
+                 dict(x=data.index, y=data['I'], mode='lines+markers', name='Infected'),
+                 dict(x=data.index, y=data['R'], mode='lines+markers', name='Recoverd')],
+        'layout': {
+            'height': '350px',
+            'title': {'text': 'SIR model for '+country},
+            'yaxis': {'showgrid': True},
+            'xaxis': {'showgrid': True}
+        }
+    }
 
 
 @app.callback(
     dash.dependencies.Output('graph_map', 'figure'),
     [dash.dependencies.Input('metric-selected', 'value'), dash.dependencies.Input('metric-selected', 'options'), dash.dependencies.Input('date_Slider', 'value')]
 )
-
-def update_figure(selected, options, setdate):
+def update_map(selected, options, setdate):
     trace = go.Choropleth(locations=data[selected]['data'].T.index,  # Spatial coordinates
                           z=data[selected]['data'].T[date.fromtimestamp(setdate)],  # Data to be color-coded
                           locationmode='ISO-3',  # set of locations match entries in `locations`
@@ -105,6 +121,22 @@ def update_figure(selected, options, setdate):
                           colorbar_title=[entry['label'] for entry in options if entry['value'] == selected][0])
     return {'data': [trace],
             'layout': go.Layout(title=[entry['label'] for entry in options if entry['value'] == selected][0], height=700, geo={'showframe': False, 'showcoastlines': False, 'projection': {'type': 'miller'}})}
+
+
+@app.callback(
+    dash.dependencies.Output('graph_data', 'figure'),
+    [dash.dependencies.Input('graph_map', 'hoverData'), dash.dependencies.Input('metric-selected', 'value'), dash.dependencies.Input('metric-selected', 'options')])
+def update_data_series(hoverData, selected, options):
+    return create_data_series(data[selected]['data'], hoverData['points'][0]['location'], [entry['label'] for entry in options if entry['value'] == selected][0])
+
+
+@app.callback(
+    dash.dependencies.Output('graph_model', 'figure'),
+    [dash.dependencies.Input('graph_map', 'hoverData'), dash.dependencies.Input('metric-selected', 'value'), dash.dependencies.Input('metric-selected', 'options')])
+def update_model_series(hoverData, selected, options):
+    parameter = parameterestimation(data['confirmed']['data'], hoverData['points'][0]['location'])
+    data_model = SIRmodel(data, hoverData['points'][0]['location'], parameter, forecast=300)
+    return create_model_series(data_model, hoverData['points'][0]['location'], [entry['label'] for entry in options if entry['value'] == selected][0])
 
 
 if __name__ == '__main__':
