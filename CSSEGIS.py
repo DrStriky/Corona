@@ -70,8 +70,16 @@ app.layout = html.Div([html.Div([html.H1('Covid-19 data by country')],
                                             marks={int(mktime(xx.timetuple())): {'label': xx.isoformat(), 'style': {'writing-mode': 'vertical-rl', 'text-orientation': 'use-glyph-orientation'}} for xx in data['recovered_nzd']['data'][np.arange(len(data['recovered_nzd']['data'])) % 2 == 0].index},
                                             )], style={'marginBottom': '5em'}
                                 ),
-                       html.Div([dcc.Graph(id='graph_map')], style={'display': 'inline-block', 'width': '49%'}),
+                       html.Div([dcc.Graph(id='graph_map')], style={'display': 'inline-block', 'width': '49%', 'vertical-align': 'top'}),
                        html.Div([dcc.Graph(id='graph_data',
+                                 figure={'data': [
+                                     {'x': SIR_data.index, 'y': SIR_data['S'].values, 'type': 'line', 'name': 'S'},
+                                     {'x': SIR_data.index, 'y': SIR_data['I'].values, 'type': 'line', 'name': 'I'},
+                                     {'x': SIR_data.index, 'y': SIR_data['R'].values, 'type': 'line', 'name': 'R'}],
+                                     'layout': {'title': 'SIR model for AUT'}
+                                     }
+                                 ),
+                                 dcc.Graph(id='graph_model',
                                  figure={'data': [
                                      {'x': SIR_data.index, 'y': SIR_data['S'].values, 'type': 'line', 'name': 'S'},
                                      {'x': SIR_data.index, 'y': SIR_data['I'].values, 'type': 'line', 'name': 'I'},
@@ -96,36 +104,8 @@ def update_figure(selected, options, setdate):
                           zmax=np.nanquantile(data[selected]['data'].T[date.fromtimestamp(setdate)], q=0.95),
                           colorbar_title=[entry['label'] for entry in options if entry['value'] == selected][0])
     return {'data': [trace],
-            'layout': go.Layout(title=[entry['label'] for entry in options if entry['value'] == selected][0], height=600, geo={'showframe': False, 'showcoastlines': False, 'projection': {'type': 'miller'}})}
+            'layout': go.Layout(title=[entry['label'] for entry in options if entry['value'] == selected][0], height=700, geo={'showframe': False, 'showcoastlines': False, 'projection': {'type': 'miller'}})}
 
 
 if __name__ == '__main__':
     app.run_server(debug=False)
-
-
-# external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
-
-# app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
-
-# app.layout = html.Div(children=[
-#     html.H1(children='Covid-19 Dashboard (Are we gonna die?)'),
-
-#     html.Div(children='Programmed by Jonathan & Florian under quarantine in dash'),
-
-#     dcc.Graph(
-#         id='example-graph',
-#         figure={
-#             'data': [
-#                 {'x': SIR_data.index, 'y': SIR_data['S'].values, 'type': 'line', 'name': 'S'},
-#                 {'x': SIR_data.index, 'y': SIR_data['I'].values, 'type': 'line', 'name': 'I'},
-#                 {'x': SIR_data.index, 'y': SIR_data['R'].values, 'type': 'line', 'name': 'R'},
-#             ],
-#             'layout': {
-#                 'title': 'SIR model for AUT'
-#             }
-#         }
-#     )
-# ])
-
-# if __name__ == '__main__':
-#     app.run_server(debug=False)
