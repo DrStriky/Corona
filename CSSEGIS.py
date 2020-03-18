@@ -46,20 +46,21 @@ SIR_data = SIRmodel(data, 'AUT', parameter, forecast=300, output=True)
 # Dash part
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
-app.layout = html.Div([html.Div([html.H1("Covid-19 data by country")],
-                                style={'textAlign': "center", "padding-bottom": "30"}),
-                       html.Div([html.Span("Metric to display : ", className="six columns",
-                                           style={"text-align": "right", "width": "40%", "padding-top": 10}),
-                                 dcc.Dropdown(id="metric-selected", value='confirmed',
-                                              options=[{'label': "infected", 'value': 'confirmed'},
-                                                       {'label': "infected normalizied", 'value': 'confirmed_nzd'},
-                                                       {'label': "recovered", 'value': 'recovered'},
-                                                       {'label': "recovered normalizied", 'value': 'recovered_nzd'},
-                                                       {'label': "deaths", 'value': 'deaths'},
-                                                       {'label': "deaths normalizied", 'value': 'deaths_nzd'}],
-                                              style={"display": "block", "margin-left": "auto", "margin-right": "auto",
-                                                     "width": "70%"},
-                                              className="six columns")], className="row"),
+app.layout = html.Div([html.Div([html.H1('Covid-19 data by country')],
+                                style={'textAlign': 'center', 'padding-bottom': '30'}),
+                       html.Div(children='Programmed by Jonathan & Florian under quarantine in dash'),
+                       html.Div([html.Span('Metric to display : ', className='six columns',
+                                           style={'text-align': 'right', 'width': '40%', 'padding-top': 10}),
+                                 dcc.Dropdown(id='metric-selected', value='confirmed',
+                                              options=[{'label': 'infected', 'value': 'confirmed'},
+                                                       {'label': 'infected normalizied', 'value': 'confirmed_nzd'},
+                                                       {'label': 'recovered', 'value': 'recovered'},
+                                                       {'label': 'recovered normalizied', 'value': 'recovered_nzd'},
+                                                       {'label': 'deaths', 'value': 'deaths'},
+                                                       {'label': 'deaths normalizied', 'value': 'deaths_nzd'}],
+                                              style={'display': 'block', 'margin-left': 'auto', 'margin-right': 'auto',
+                                                     'width': '70%'},
+                                              className='six columns')], className='row'),
                        html.Div([dcc.Slider(id='date_Slider',
                                             updatemode='mouseup',
                                             min=mktime(data['recovered_nzd']['data'].index.min().timetuple()),
@@ -67,15 +68,23 @@ app.layout = html.Div([html.Div([html.H1("Covid-19 data by country")],
                                             step=mktime((date.today()+timedelta(days=1)).timetuple())-mktime(date.today().timetuple()),
                                             value=mktime((date.today()-timedelta(days=1)).timetuple()),
                                             marks={int(mktime(xx.timetuple())): {'label': xx.isoformat(), 'style': {'writing-mode': 'vertical-rl', 'text-orientation': 'use-glyph-orientation'}} for xx in data['recovered_nzd']['data'][np.arange(len(data['recovered_nzd']['data'])) % 2 == 0].index},
-                                            )], style={'marginBottom': '8em'}
+                                            )], style={'marginBottom': '5em'}
                                 ),
-                       dcc.Graph(id="my-graph")
-                       ], className="container")
+                       html.Div([dcc.Graph(id='graph_map')], style={'display': 'inline-block', 'width': '49%'}),
+                       html.Div([dcc.Graph(id='graph_data',
+                                 figure={'data': [
+                                     {'x': SIR_data.index, 'y': SIR_data['S'].values, 'type': 'line', 'name': 'S'},
+                                     {'x': SIR_data.index, 'y': SIR_data['I'].values, 'type': 'line', 'name': 'I'},
+                                     {'x': SIR_data.index, 'y': SIR_data['R'].values, 'type': 'line', 'name': 'R'}],
+                                     'layout': {'title': 'SIR model for AUT'}
+                                     }
+                                 )], style={'display': 'inline-block', 'width': '49%'})
+                       ], className='container', style={'width': '1500px', 'max-width': '1700px'})
 
 
 @app.callback(
-    dash.dependencies.Output("my-graph", "figure"),
-    [dash.dependencies.Input("metric-selected", "value"), dash.dependencies.Input("metric-selected", "options"), dash.dependencies.Input("date_Slider", "value")]
+    dash.dependencies.Output('graph_map', 'figure'),
+    [dash.dependencies.Input('metric-selected', 'value'), dash.dependencies.Input('metric-selected', 'options'), dash.dependencies.Input('date_Slider', 'value')]
 )
 
 def update_figure(selected, options, setdate):
@@ -86,8 +95,8 @@ def update_figure(selected, options, setdate):
                           zmin=0,
                           zmax=np.nanquantile(data[selected]['data'].T[date.fromtimestamp(setdate)], q=0.95),
                           colorbar_title=[entry['label'] for entry in options if entry['value'] == selected][0])
-    return {"data": [trace],
-            "layout": go.Layout(title=[entry['label'] for entry in options if entry['value'] == selected][0], height=800, geo={'showframe': False, 'showcoastlines': False, 'projection': {'type': "miller"}})}
+    return {'data': [trace],
+            'layout': go.Layout(title=[entry['label'] for entry in options if entry['value'] == selected][0], height=600, geo={'showframe': False, 'showcoastlines': False, 'projection': {'type': 'miller'}})}
 
 
 if __name__ == '__main__':
