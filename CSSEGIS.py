@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from datetime import datetime, timedelta, date
+from time import mktime
 
 import dash
 import dash_core_components as dcc
@@ -42,12 +43,7 @@ SIRmodel(data, 'AUT', parameter, forecast=300, output=True)
 parameter = addmeasures(parameter, date(2020, 3, 8), 0.6)
 SIR_data = SIRmodel(data, 'AUT', parameter, forecast=300, output=True)
 
-
-
-
-
-
-
+# Dash part
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 app.layout = html.Div([html.Div([html.H1("Covid-19 data by country")],
@@ -64,40 +60,38 @@ app.layout = html.Div([html.Div([html.H1("Covid-19 data by country")],
                                               style={"display": "block", "margin-left": "auto", "margin-right": "auto",
                                                      "width": "70%"},
                                               className="six columns")], className="row"),
+                       html.Div([dcc.Slider(id='date_Slider',
+                                            updatemode='mouseup',
+                                            min=mktime(data['recovered_nzd']['data'].index.min().timetuple()),
+                                            max=mktime(data['recovered_nzd']['data'].index.max().timetuple()),
+                                            step=mktime((date.today()+timedelta(days=1)).timetuple())-mktime(date.today().timetuple()),
+                                            value=mktime((date.today()-timedelta(days=1)).timetuple()),
+                                            marks={int(mktime(xx.timetuple())): {'label': xx.isoformat(), 'style': {'writing-mode': 'vertical-rl', 'text-orientation': 'use-glyph-orientation'}} for xx in data['recovered_nzd']['data'][np.arange(len(data['recovered_nzd']['data'])) % 2 == 0].index},
+                                            )], style={'marginBottom': '8em'}
+                                ),
                        dcc.Graph(id="my-graph")
                        ], className="container")
 
 
 @app.callback(
     dash.dependencies.Output("my-graph", "figure"),
-    [dash.dependencies.Input("metric-selected", "value"), dash.dependencies.Input("metric-selected", "options"),]
+    [dash.dependencies.Input("metric-selected", "value"), dash.dependencies.Input("metric-selected", "options"), dash.dependencies.Input("date_Slider", "value")]
 )
 
-def update_figure(selected, options):
-    def title(text):
-        if text == "pop":
-            return "Population (million)"
-        elif text == "gdpPercap":
-            return "GDP Per Capita (USD)"
-        else:
-            return "Life Expectancy (Years)"
+def update_figure(selected, options, setdate):
     trace = go.Choropleth(locations=data[selected]['data'].T.index,  # Spatial coordinates
-                          z=data[selected]['data'].T[date.today()-timedelta(days=2)],  # Data to be color-coded
+                          z=data[selected]['data'].T[date.fromtimestamp(setdate)],  # Data to be color-coded
                           locationmode='ISO-3',  # set of locations match entries in `locations`
                           colorscale='Viridis',
                           zmin=0,
-                          zmax=np.nanquantile(data[selected]['data'].T[date.today()-timedelta(days=2)], q=0.95),
-                          colorbar_title=[entry['label'] for entry in options if entry['value']==selected][0])
+                          zmax=np.nanquantile(data[selected]['data'].T[date.fromtimestamp(setdate)], q=0.95),
+                          colorbar_title=[entry['label'] for entry in options if entry['value'] == selected][0])
     return {"data": [trace],
-            "layout": go.Layout(title=[entry['label'] for entry in options if entry['value']==selected][0], height=800, geo={'showframe': False, 'showcoastlines': False, 'projection': {'type': "miller"}})}
+            "layout": go.Layout(title=[entry['label'] for entry in options if entry['value'] == selected][0], height=800, geo={'showframe': False, 'showcoastlines': False, 'projection': {'type': "miller"}})}
 
 
 if __name__ == '__main__':
     app.run_server(debug=False)
-
-
-
-
 
 
 # external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
