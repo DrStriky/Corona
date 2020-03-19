@@ -91,7 +91,7 @@ def create_map(selected, title, setdate):
                                   zoom=3,
                                   range_color=(0, np.nanquantile(new_data['number'], q=0.95)),
                                   height=650,
-                                  title=title
+                                  labels={'number':''}  # title
                                   )
     figure.update_layout(margin={'r': 0, 't': 0, 'l': 0, 'b': 0})
     figure.update_layout(mapbox_style='carto-positron', mapbox_center={'lat': 48.210033, 'lon': 16.363449})
