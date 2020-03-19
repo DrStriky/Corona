@@ -44,6 +44,7 @@ data['infectionrate']['data'] = data['confirmed_nzd']['data'].diff().div((data['
 
 # Dash part
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+server = app.server
 
 app.layout = html.Div([html.Div([html.H1('Covid-19 data by country')],
                                 style={'textAlign': 'center', 'padding-bottom': '30'}),
