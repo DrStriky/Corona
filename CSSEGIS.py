@@ -30,21 +30,13 @@ with open(os.path.join('data', 'World_map', 'world.geo.json')) as f:
 for i in range(len(world_map['features'])):
     world_map['features'][i]['id'] = world_map['features'][i]['properties']['iso_a3']
 
-# plotdata(data['confirmed_nzd']['data'], title='confirmed (normalized)', ylabel='confirmend/capita (%)')
-# plotdata(data['deaths_nzd']['data'], title='deaths (normalized)', ylabel='death/capita (%)')
-# plotdata((data['deaths_nzd']['data']/data['confirmed_nzd']['data']).replace([np.inf, -np.inf], np.nan), title='deaths per confirmed', ylabel='death/confirmed')
 
-# # diff/(confirmend-diff-death-recovered)
-# plotdata(data['confirmed_nzd']['data'].diff().div((data['confirmed_nzd']['data']-data['confirmed_nzd']['data'].diff()-data['deaths_nzd']['data']-data['recovered_nzd']['data'])), title='spreading rate per day', ylabel='spreading rate/day', smoothdays=2)
+# diff/(confirmend-diff-death-recovered)
+data['infectionrate'] = dict()
+data['infectionrate']['data'] = data['confirmed_nzd']['data'].diff().div((data['confirmed_nzd']['data']-data['confirmed_nzd']['data'].diff()-data['deaths_nzd']['data']-data['recovered_nzd']['data']))
 
 
 # (data['confirmed_nzd']['data']-data['recovered_nzd']['data']-data['deaths_nzd']['data'])['KOR']
-
-
-# parameter = parameterestimation(data['confirmed']['data'], 'ITA', output=True)
-# SIRmodel(data, 'ITA', parameter, forecast=300, output=True)
-# parameter = addmeasures(parameter, datetime(2020, 3, 8), 0.6)
-# SIRmodel(data, 'ITA', parameter, forecast=300, output=True)
 
 # parameter = parameterestimation(data['confirmed']['data'], 'AUT', output=True)
 # SIRmodel(data, 'AUT', parameter, forecast=300, output=True)
@@ -61,10 +53,12 @@ app.layout = html.Div([html.Div([html.H1('Covid-19 data by country')],
                                  dcc.Dropdown(id='metric-selected', value='confirmed_nzd',
                                               options=[{'label': 'infected', 'value': 'confirmed'},
                                                        {'label': 'infected normalizied', 'value': 'confirmed_nzd'},
-                                                       {'label': 'recovered', 'value': 'recovered'},
-                                                       {'label': 'recovered normalizied', 'value': 'recovered_nzd'},
                                                        {'label': 'deaths', 'value': 'deaths'},
-                                                       {'label': 'deaths normalizied', 'value': 'deaths_nzd'}],
+                                                       {'label': 'deaths normalizied', 'value': 'deaths_nzd'},
+                                                       {'label': 'infection rate', 'value': 'infectionrate'},
+                                                       {'label': 'recovered', 'value': 'recovered'},
+                                                       {'label': 'recovered normalizied', 'value': 'recovered_nzd'}
+                                                       ],
                                               style={'display': 'block', 'margin-left': 'auto', 'margin-right': 'auto',
                                                      'width': '70%'},
                                               className='six columns')], className='row'),
