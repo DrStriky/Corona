@@ -86,19 +86,20 @@ app.layout = html.Div([html.Div([html.H1('Covid-19 data by country')],
                        ], className='container', style={'width': '1700px', 'max-width': '1700px'})
 
 
-def create_map(selected, options, setdate):
+def create_map(selected, title, setdate):
     new_data = data[selected]['data'].T[date.fromtimestamp(setdate)].to_frame().reset_index()
-    print(selected)
     new_data.columns = ['country', 'number']
+    print(title, 'Flo')
     figure = px.choropleth_mapbox(data_frame=new_data,
-                           geojson=world_map,
-                           featureidkey='properties.iso_a3',
-                           locations='country',
-                           color='number',
-                           # color_continuous_scale='Viridis',
-                           # range_color=(0, np.nanquantile(new_data['number'], q=0.95)),
-                           height=650,
-                           )
+                                  geojson=world_map,
+                                  featureidkey='properties.iso_a3',
+                                  locations='country',
+                                  color='number',
+                                  zoom=3,
+                                  range_color=(0, np.nanquantile(new_data['number'], q=0.95)),
+                                  height=650,
+                                  title=title
+                                  )
     figure.update_layout(margin={'r':0,'t':0,'l':0,'b':0})
     figure.update_layout(mapbox_style='carto-positron', mapbox_center={'lat':48.210033, 'lon':16.363449})
     return figure
@@ -112,7 +113,7 @@ def create_data_series(data, country, title):
             mode='lines+markers'
         )],
         'layout': {
-            'height': '350px',
+            'height': '150px',
             'title': {'text': title+' for '+country},
             'yaxis': {'showgrid': True},
             'xaxis': {'showgrid': True}
@@ -126,7 +127,7 @@ def create_model_series(data, country, title):
                  dict(x=data.index, y=data['I'], mode='lines+markers', name='Infected'),
                  dict(x=data.index, y=data['R'], mode='lines+markers', name='Recoverd')],
         'layout': {
-            'height': '350px',
+            'height': '150px',
             'title': {'text': 'SIR model for '+country},
             'yaxis': {'showgrid': True},
             'xaxis': {'showgrid': True}
@@ -139,7 +140,7 @@ def create_model_series(data, country, title):
     [dash.dependencies.Input('metric-selected', 'value'), dash.dependencies.Input('metric-selected', 'options'), dash.dependencies.Input('date_Slider', 'value')]
 )
 def update_map(selected, options, setdate):
-    return create_map(selected, options, setdate)
+    return create_map(selected, [entry['label'] for entry in options if entry['value'] == selected][0], setdate)
 
 
 @app.callback(
