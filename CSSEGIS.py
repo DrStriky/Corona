@@ -27,6 +27,8 @@ data = load_covid19_data()
 
 with open(os.path.join('data', 'World_map', 'world.geo.json')) as f:
     world_map = json.load(f)
+for i in range(len(world_map['features'])):
+    world_map['features'][i]['id'] = world_map['features'][i]['properties']['iso_a3']
 
 # plotdata(data['confirmed_nzd']['data'], title='confirmed (normalized)', ylabel='confirmend/capita (%)')
 # plotdata(data['deaths_nzd']['data'], title='deaths (normalized)', ylabel='death/capita (%)')
@@ -77,7 +79,7 @@ app.layout = html.Div([html.Div([html.H1('Covid-19 data by country')],
                                             )], style={'marginBottom': '5em'}
                                 ),
                        html.Div([dcc.Graph(id='graph_map', hoverData={'points': [{'location': 'AUT'}]})
-                                 ], style={'display': 'inline-block', 'width': '49%', 'vertical-align': 'top'}),
+                                 ], style={'display': 'inline-block', 'width': '49%', 'vertical-align': 'top', 'marginTop': '2em'}),
                        html.Div([dcc.Graph(id='graph_data'),
                                  dcc.Graph(id='graph_model')
                                  ], style={'display': 'inline-block', 'width': '49%'})
@@ -86,14 +88,19 @@ app.layout = html.Div([html.Div([html.H1('Covid-19 data by country')],
 
 def create_map(selected, options, setdate):
     new_data = data[selected]['data'].T[date.fromtimestamp(setdate)].to_frame().reset_index()
+    print(selected)
     new_data.columns = ['country', 'number']
-    figure = px.choropleth(new_data,
+    figure = px.choropleth_mapbox(data_frame=new_data,
                            geojson=world_map,
                            featureidkey='properties.iso_a3',
                            locations='country',
                            color='number',
-                           projection="robinson"
+                           # color_continuous_scale='Viridis',
+                           # range_color=(0, np.nanquantile(new_data['number'], q=0.95)),
+                           height=650,
                            )
+    figure.update_layout(margin={'r':0,'t':0,'l':0,'b':0})
+    figure.update_layout(mapbox_style='carto-positron', mapbox_center={'lat':48.210033, 'lon':16.363449})
     return figure
 
 
@@ -133,17 +140,6 @@ def create_model_series(data, country, title):
 )
 def update_map(selected, options, setdate):
     return create_map(selected, options, setdate)
-    # return {'data': create_map(selected, options, setdate)}
-
-    # trace = go.Choropleth(locations=data[selected]['data'].T.index,  # Spatial coordinates
-    #                       z=data[selected]['data'].T[date.fromtimestamp(setdate)],  # Data to be color-coded
-    #                       locationmode='ISO-3',  # set of locations match entries in `locations`
-    #                       colorscale='Viridis',
-    #                       zmin=0,
-    #                       zmax=np.nanquantile(data[selected]['data'].T[date.fromtimestamp(setdate)], q=0.95),
-    #                       colorbar_title=[entry['label'] for entry in options if entry['value'] == selected][0])
-    # return {'data': [trace],
-    #         'layout': go.Layout(title=[entry['label'] for entry in options if entry['value'] == selected][0], height=700, geo={'showframe': False, 'showcoastlines': False, 'projection': {'type': 'miller'}})}
 
 
 @app.callback(
