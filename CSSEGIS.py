@@ -6,10 +6,14 @@ import numpy as np
 from datetime import timedelta, date
 from time import mktime
 
+import os
+import json
+
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
 import plotly.graph_objs as go
+import plotly.express as px
 
 from DataPreparation import load_covid19_data
 from DataPlotting import plotdata
@@ -20,6 +24,9 @@ from SIR import SIRmodel
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 data = load_covid19_data()
+
+with open(os.path.join('data', 'World_map', 'world.geo.json')) as f:
+    world_map = json.load(f)
 
 # plotdata(data['confirmed_nzd']['data'], title='confirmed (normalized)', ylabel='confirmend/capita (%)')
 # plotdata(data['deaths_nzd']['data'], title='deaths (normalized)', ylabel='death/capita (%)')
@@ -65,7 +72,7 @@ app.layout = html.Div([html.Div([html.H1('Covid-19 data by country')],
                                             min=mktime(data['recovered_nzd']['data'].index.min().timetuple()),
                                             max=mktime(data['recovered_nzd']['data'].index.max().timetuple()),
                                             step=mktime((date.today()+timedelta(days=1)).timetuple())-mktime(date.today().timetuple()),
-                                            value=mktime((date.today()-timedelta(days=1)).timetuple()),
+                                            value=mktime((date.today()-timedelta(days=2)).timetuple()),
                                             marks={int(mktime(xx.timetuple())): {'label': xx.isoformat(), 'style': {'writing-mode': 'vertical-rl', 'text-orientation': 'use-glyph-orientation'}} for xx in data['recovered_nzd']['data'][np.arange(len(data['recovered_nzd']['data'])) % 2 == 0].index},
                                             )], style={'marginBottom': '5em'}
                                 ),
@@ -75,6 +82,19 @@ app.layout = html.Div([html.Div([html.H1('Covid-19 data by country')],
                                  dcc.Graph(id='graph_model')
                                  ], style={'display': 'inline-block', 'width': '49%'})
                        ], className='container', style={'width': '1700px', 'max-width': '1700px'})
+
+
+def create_map(selected, options, setdate):
+    new_data = data[selected]['data'].T[date.fromtimestamp(setdate)].to_frame().reset_index()
+    new_data.columns = ['country', 'number']
+    figure = px.choropleth(new_data,
+                           geojson=world_map,
+                           featureidkey='properties.iso_a3',
+                           locations='country',
+                           color='number',
+                           projection="robinson"
+                           )
+    return figure
 
 
 def create_data_series(data, country, title):
@@ -112,15 +132,18 @@ def create_model_series(data, country, title):
     [dash.dependencies.Input('metric-selected', 'value'), dash.dependencies.Input('metric-selected', 'options'), dash.dependencies.Input('date_Slider', 'value')]
 )
 def update_map(selected, options, setdate):
-    trace = go.Choropleth(locations=data[selected]['data'].T.index,  # Spatial coordinates
-                          z=data[selected]['data'].T[date.fromtimestamp(setdate)],  # Data to be color-coded
-                          locationmode='ISO-3',  # set of locations match entries in `locations`
-                          colorscale='Viridis',
-                          zmin=0,
-                          zmax=np.nanquantile(data[selected]['data'].T[date.fromtimestamp(setdate)], q=0.95),
-                          colorbar_title=[entry['label'] for entry in options if entry['value'] == selected][0])
-    return {'data': [trace],
-            'layout': go.Layout(title=[entry['label'] for entry in options if entry['value'] == selected][0], height=700, geo={'showframe': False, 'showcoastlines': False, 'projection': {'type': 'miller'}})}
+    return create_map(selected, options, setdate)
+    # return {'data': create_map(selected, options, setdate)}
+
+    # trace = go.Choropleth(locations=data[selected]['data'].T.index,  # Spatial coordinates
+    #                       z=data[selected]['data'].T[date.fromtimestamp(setdate)],  # Data to be color-coded
+    #                       locationmode='ISO-3',  # set of locations match entries in `locations`
+    #                       colorscale='Viridis',
+    #                       zmin=0,
+    #                       zmax=np.nanquantile(data[selected]['data'].T[date.fromtimestamp(setdate)], q=0.95),
+    #                       colorbar_title=[entry['label'] for entry in options if entry['value'] == selected][0])
+    # return {'data': [trace],
+    #         'layout': go.Layout(title=[entry['label'] for entry in options if entry['value'] == selected][0], height=700, geo={'showframe': False, 'showcoastlines': False, 'projection': {'type': 'miller'}})}
 
 
 @app.callback(
