@@ -56,7 +56,6 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 app.layout = html.Div([html.Div([html.H1('Covid-19 data by country')],
                                 style={'textAlign': 'center', 'padding-bottom': '30'}),
-                       html.Div(children='Programmed by Jonathan & Florian under quarantine in dash'),
                        html.Div([html.Span('Metric to display : ', className='six columns',
                                            style={'text-align': 'right', 'width': '40%', 'padding-top': 10}),
                                  dcc.Dropdown(id='metric-selected', value='confirmed_nzd',
@@ -78,18 +77,18 @@ app.layout = html.Div([html.Div([html.H1('Covid-19 data by country')],
                                             marks={int(mktime(xx.timetuple())): {'label': xx.isoformat(), 'style': {'writing-mode': 'vertical-rl', 'text-orientation': 'use-glyph-orientation'}} for xx in data['recovered_nzd']['data'][np.arange(len(data['recovered_nzd']['data'])) % 2 == 0].index},
                                             )], style={'marginBottom': '5em'}
                                 ),
-                       html.Div([dcc.Graph(id='graph_map', hoverData={'points': [{'location': 'AUT'}]})
+                       html.Div([dcc.Graph(id='graph_map', clickData={'points': [{'location': 'AUT'}]})
                                  ], style={'display': 'inline-block', 'width': '49%', 'vertical-align': 'top', 'marginTop': '2em'}),
                        html.Div([dcc.Graph(id='graph_data'),
                                  dcc.Graph(id='graph_model')
-                                 ], style={'display': 'inline-block', 'width': '49%'})
+                                 ], style={'display': 'inline-block', 'width': '49%'}),
+                       html.Footer(children='Programmed by Jonathan & Florian under quarantine in dash'),
                        ], className='container', style={'width': '1700px', 'max-width': '1700px'})
 
 
 def create_map(selected, title, setdate):
     new_data = data[selected]['data'].T[date.fromtimestamp(setdate)].to_frame().reset_index()
     new_data.columns = ['country', 'number']
-    print(title, 'Flo')
     figure = px.choropleth_mapbox(data_frame=new_data,
                                   geojson=world_map,
                                   featureidkey='properties.iso_a3',
@@ -100,8 +99,8 @@ def create_map(selected, title, setdate):
                                   height=650,
                                   title=title
                                   )
-    figure.update_layout(margin={'r':0,'t':0,'l':0,'b':0})
-    figure.update_layout(mapbox_style='carto-positron', mapbox_center={'lat':48.210033, 'lon':16.363449})
+    figure.update_layout(margin={'r': 0, 't': 0, 'l': 0, 'b': 0})
+    figure.update_layout(mapbox_style='carto-positron', mapbox_center={'lat': 48.210033, 'lon': 16.363449})
     return figure
 
 
@@ -113,7 +112,7 @@ def create_data_series(data, country, title):
             mode='lines+markers'
         )],
         'layout': {
-            'height': '150px',
+            'height': 400,
             'title': {'text': title+' for '+country},
             'yaxis': {'showgrid': True},
             'xaxis': {'showgrid': True}
@@ -127,7 +126,7 @@ def create_model_series(data, country, title):
                  dict(x=data.index, y=data['I'], mode='lines+markers', name='Infected'),
                  dict(x=data.index, y=data['R'], mode='lines+markers', name='Recoverd')],
         'layout': {
-            'height': '150px',
+            'height': 400,
             'title': {'text': 'SIR model for '+country},
             'yaxis': {'showgrid': True},
             'xaxis': {'showgrid': True}
@@ -145,18 +144,18 @@ def update_map(selected, options, setdate):
 
 @app.callback(
     dash.dependencies.Output('graph_data', 'figure'),
-    [dash.dependencies.Input('graph_map', 'hoverData'), dash.dependencies.Input('metric-selected', 'value'), dash.dependencies.Input('metric-selected', 'options')])
-def update_data_series(hoverData, selected, options):
-    return create_data_series(data[selected]['data'], hoverData['points'][0]['location'], [entry['label'] for entry in options if entry['value'] == selected][0])
+    [dash.dependencies.Input('graph_map', 'clickData'), dash.dependencies.Input('metric-selected', 'value'), dash.dependencies.Input('metric-selected', 'options')])
+def update_data_series(clickData, selected, options):
+    return create_data_series(data[selected]['data'], clickData['points'][0]['location'], [entry['label'] for entry in options if entry['value'] == selected][0])
 
 
 @app.callback(
     dash.dependencies.Output('graph_model', 'figure'),
-    [dash.dependencies.Input('graph_map', 'hoverData'), dash.dependencies.Input('metric-selected', 'value'), dash.dependencies.Input('metric-selected', 'options')])
-def update_model_series(hoverData, selected, options):
-    parameter = parameterestimation(data['confirmed']['data'], hoverData['points'][0]['location'])
-    data_model = SIRmodel(data, hoverData['points'][0]['location'], parameter, forecast=300)
-    return create_model_series(data_model, hoverData['points'][0]['location'], [entry['label'] for entry in options if entry['value'] == selected][0])
+    [dash.dependencies.Input('graph_map', 'clickData'), dash.dependencies.Input('metric-selected', 'value'), dash.dependencies.Input('metric-selected', 'options')])
+def update_model_series(clickData, selected, options):
+    parameter = parameterestimation(data['confirmed']['data'], clickData['points'][0]['location'])
+    data_model = SIRmodel(data, clickData['points'][0]['location'], parameter, forecast=200)
+    return create_model_series(data_model, clickData['points'][0]['location'], [entry['label'] for entry in options if entry['value'] == selected][0])
 
 
 if __name__ == '__main__':
