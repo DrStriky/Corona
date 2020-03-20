@@ -20,26 +20,29 @@ def addmeasures(parameter, date, scaling):
 
 def parameterestimation(data, country, threshold=20, output=False, forecast=40, fristsegment=10, lastsegement=4):
 
+    def linear(x, A, B):
+        return A+B*x
+
     def exponential(x, A, B):
-        return A * (np.exp(B * x)-1)+threshold
+        return A*np.exp(B * x)
 
     data_confirmed = data[country][data[country] > threshold]
     data_confirmed_start_date = data[country][data[country] > threshold].index[0]
     data_confirmed_x = np.array(range(0, len(data_confirmed)))
 
-    firstSegment_fit, pcov = curve_fit(exponential, data_confirmed_x[:fristsegment], data_confirmed.values[:fristsegment])
-    lastSegment_fit, pcov = curve_fit(exponential, data_confirmed_x[-lastsegement:], data_confirmed.values[-lastsegement:])
-    prediction_first = pd.DataFrame(data=exponential(range(forecast), firstSegment_fit[0], firstSegment_fit[1]), index=[data_confirmed_start_date + timedelta(days=x) for x in range(forecast)])
-    prediction_last = pd.DataFrame(data=exponential(range(forecast), lastSegment_fit[0], lastSegment_fit[1]), index=[data_confirmed_start_date + timedelta(days=x) for x in range(forecast)])
+    firstSegment_fit, pcov = curve_fit(linear, data_confirmed_x[:fristsegment], np.log(data_confirmed.values[:fristsegment]), p0=[100, 0.3])
+    lastSegment_fit, pcov = curve_fit(linear, data_confirmed_x[-lastsegement:], np.log(data_confirmed.values[-lastsegement:]))
+    prediction_first = pd.DataFrame(data=exponential(range(forecast), np.exp(firstSegment_fit[0]), firstSegment_fit[1]), index=[data_confirmed_start_date + timedelta(days=x) for x in range(forecast)])
+    prediction_last = pd.DataFrame(data=exponential(range(forecast), np.exp(lastSegment_fit[0]), lastSegment_fit[1]), index=[data_confirmed_start_date + timedelta(days=x) for x in range(forecast)])
     time_curfew = prediction_first[(np.sign(prediction_first - prediction_last).diff() == 2).values].index
 
     gamma = 1/15
-    beta = firstSegment_fit[1]+gamma
+    beta = firstSegment_fit[1]
     t0 = data_confirmed_start_date
-    I0 = firstSegment_fit[0]*firstSegment_fit[1]/gamma
+    I0 = np.exp(firstSegment_fit[0])
     betagamma = pd.DataFrame({'beta': beta, 'gamma': gamma}, index=[t0])
     if len(time_curfew) == 1:
-        betagamma = betagamma.append(pd.DataFrame({'beta': lastSegment_fit[1]+gamma, 'gamma': gamma}, index=[time_curfew[0]]), sort=True)
+        betagamma = betagamma.append(pd.DataFrame({'beta': lastSegment_fit[1], 'gamma': gamma}, index=[time_curfew[0]]), sort=True)
 
     if output:
         print(country)
