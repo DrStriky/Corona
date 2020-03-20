@@ -116,9 +116,13 @@ def create_data_series(data, country, title):
 
 def create_model_series(data, country, title):
     return {
-        'data': [dict(x=data.index, y=data['S'], mode='lines+markers', name='Susceptible'),
-                 dict(x=data.index, y=data['I'], mode='lines+markers', name='Infected'),
-                 dict(x=data.index, y=data['R'], mode='lines+markers', name='Recoverd')],
+        'data': [dict(x=data.index, y=data['S0'], mode='lines', line={'dash': 'dash', 'color': '#1f77b4'}, name='Susceptible w/o curfew'),
+                 dict(x=data.index, y=data['S'], mode='lines+markers', line={'color': '#1f77b4'}, name='Susceptible'),
+                 dict(x=data.index, y=data['R0'], mode='lines', line={'dash': 'dash', 'color': '#2ca02c'}, name='Recoverd w/o curfew'),
+                 dict(x=data.index, y=data['R'], mode='lines+markers', line={'color': '#2ca02c'}, name='Recoverd'), 
+                 dict(x=data.index, y=data['I0'], mode='lines', line={'dash': 'dash', 'color': '#ff7f0e'}, name='Infected w/o curfew'),
+                 dict(x=data.index, y=data['I'], mode='lines+markers', line={'color': '#ff7f0e'}, name='Infected')
+                 ],
         'layout': {
             'height': 400,
             'title': {'text': 'SIR model for '+country},
@@ -148,7 +152,7 @@ def update_data_series(clickData, selected, options):
     [dash.dependencies.Input('graph_map', 'clickData'), dash.dependencies.Input('metric-selected', 'value'), dash.dependencies.Input('metric-selected', 'options')])
 def update_model_series(clickData, selected, options):
     parameter = parameterestimation(data['confirmed']['data'], clickData['points'][0]['location'])
-    data_model = SIRmodel(data, clickData['points'][0]['location'], parameter, forecast=200)
+    data_model = SIRmodel(data, clickData['points'][0]['location'], parameter, forecast=600)
     return create_model_series(data_model, clickData['points'][0]['location'], [entry['label'] for entry in options if entry['value'] == selected][0])
 
 
