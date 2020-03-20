@@ -37,20 +37,17 @@ def parameterestimation(data, country, threshold=20, output=False, forecast=40, 
     time_curfew = prediction_first[(np.sign(prediction_first - prediction_last).diff() == 2).values].index
 
     gamma = 1/15
-    beta = firstSegment_fit[1]
-    t0 = data_confirmed_start_date
-    I0 = np.exp(firstSegment_fit[0])
-    betagamma = pd.DataFrame({'beta': beta, 'gamma': gamma}, index=[t0])
+    betagamma = pd.DataFrame({'beta': firstSegment_fit[1]+gamma, 'gamma': gamma}, index=[data_confirmed_start_date])
     if len(time_curfew) == 1:
-        betagamma = betagamma.append(pd.DataFrame({'beta': lastSegment_fit[1], 'gamma': gamma}, index=[time_curfew[0]]), sort=True)
+        betagamma = betagamma.append(pd.DataFrame({'beta': lastSegment_fit[1]+gamma, 'gamma': gamma}, index=[time_curfew[0]]), sort=True)
 
     if output:
         print(country)
         print(f'ɣ: {gamma}')
-        print(f'β: {beta}')
-        print(f'I₀: {I0}')
-        print(f'R₀: {beta/gamma}')
-        print(f't₀: {t0}')
+        print(f'β: {firstSegment_fit[1]+gamma}')
+        print(f'I₀: {np.exp(firstSegment_fit[0])}')
+        print(f'R₀: {(firstSegment_fit[1]+gamma)/gamma}')
+        print(f't₀: {data_confirmed_start_date}')
 
         plt.plot(prediction_first)
         plt.plot(prediction_last)
@@ -59,4 +56,4 @@ def parameterestimation(data, country, threshold=20, output=False, forecast=40, 
         plt.grid(which='both')
         plt.show()
 
-    return {'I0': I0, 't0': t0, 'betagamma': betagamma}
+    return {'I0': np.exp(firstSegment_fit[0]), 't0': data_confirmed_start_date, 'betagamma': betagamma}
