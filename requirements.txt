@@ -43,5 +43,6 @@ plotly == 4.5.2
 # Corona\DataPreparation.py: 11
 requests == 2.23.0
 
+# Corona\SIR.py: 11
 # Corona\ParameterEstimation.py: 12
 scipy == 1.4.1
