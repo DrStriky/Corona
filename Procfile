@@ -1,1 +1,1 @@
-web: gunicorn CSSEGIS:server --timeout 300
+web: gunicorn cssegis:server --timeout 300
