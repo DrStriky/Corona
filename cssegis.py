@@ -37,7 +37,7 @@ data['infectionrate']['data'] = data['confirmed_nzd']['data'].diff().div((data['
 
 # (data['confirmed_nzd']['data']-data['recovered_nzd']['data']-data['deaths_nzd']['data'])['KOR']
 
-# parameter = parameterestimation(data['confirmed']['data'], 'AUT', output=True)
+# parameter = parameterestimation(data['confirmed']['data'], 'de', output=True)
 # SIRmodel(data, 'AUT', parameter, forecast=300, output=True)
 # parameter = addmeasures(parameter, date(2020, 3, 8), 0.6)
 # SIR_data = SIRmodel(data, 'AUT', parameter, forecast=300, output=True)

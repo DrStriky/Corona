@@ -12,7 +12,7 @@ from datetime import timedelta
 from scipy.optimize import curve_fit
 
 
-def parameterestimation(data, country, threshold=3, output=False, forecast=50):
+def parameterestimation(data, country, threshold=20, output=False, forecast=50):
 
     def exponential(x, A, B):
         return A * (np.exp(B * x)-1)+threshold
