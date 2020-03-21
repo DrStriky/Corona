@@ -77,7 +77,7 @@ app.layout = html.Div([html.Div([html.H1('Covid-19 data by country')],
                                  dcc.Graph(id='graph_model')
                                  ], style={'display': 'inline-block', 'width': '49%'}),
                        html.Footer(children='Programmed by Jonathan & Florian under quarantine in dash'),
-                       ], className='container', style={'width': '1700px', 'max-width': '1700px'})
+                       ], className='container', style={'max-width': '1800px'})
 
 
 def create_map(selected, title, setdate):

@@ -46,7 +46,7 @@ def load_cssegis_data(key):
     data['file'] = os.path.join('data', 'CSSEGISandData', os.path.basename(urls[key]))
 
     # update data if older than 12 hours
-    if time.time()-os.path.getmtime(data['file']) > 60*60*12:
+    if time.time()-os.path.getmtime(data['file']) > 60*60*1:
         print('Beginning file download with requests')
         with open(data['file'], 'wb') as f:
             r = requests.get(urls[key])
