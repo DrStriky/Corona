@@ -45,10 +45,11 @@ def SIRmodel(data, country, parameter, output=False, forecast=600):
 
     duration = (SIR_data['I'].loc[SIR_data['I'] == SIR_data['I'].max()].index[0]-SIR_data.index[0])*2
 
-    dates = [parameter['t0']+duration]
-    for i in range(duration.days, forecast):
-        dates.append(parameter['t0']+timedelta(days=i))
-    SIR_data.drop(dates, inplace=True)
+    if duration.days < forecast:
+        dates = [parameter['t0']+duration]
+        for i in range(duration.days, forecast):
+            dates.append(parameter['t0']+timedelta(days=i))
+        SIR_data.drop(dates, inplace=True)
 
     if output:
         SIR_data.plot(title=country, grid=True)
