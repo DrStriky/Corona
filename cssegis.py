@@ -91,7 +91,7 @@ def create_map(selected, title, setdate):
                                   zoom=3,
                                   range_color=(0, np.nanquantile(new_data['number'], q=0.95)),
                                   height=650,
-                                  labels={'number':''}  # title
+                                  labels={'number': ''},  # title
                                   )
     figure.update_layout(margin={'r': 0, 't': 0, 'l': 0, 'b': 0})
     figure.update_layout(mapbox_style='carto-positron', mapbox_center={'lat': 48.210033, 'lon': 16.363449})
@@ -109,7 +109,8 @@ def create_data_series(data, country, title):
             'height': 400,
             'title': {'text': title+' for '+country},
             'yaxis': {'showgrid': True},
-            'xaxis': {'showgrid': True}
+            'xaxis': {'showgrid': True},
+            'updatemenus': [{'buttons': [{'args': ['yaxis.type', 'linear'], 'label': 'linear', 'method': 'relayout'}, {'args': ['yaxis.type', 'log'], 'label': 'logarithmic', 'method': 'relayout'}], 'x': 0.05, 'xanchor': 'left'}]
         }
     }
 

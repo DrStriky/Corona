@@ -43,7 +43,7 @@ def SIRmodel(data, country, parameter, output=False, forecast=600):
 
     SIR_data = pd.concat([SIR_data_regular, SIR_data_curefew], axis=1, join='inner')
 
-    duration = (SIR_data['I0'].loc[SIR_data['I0'] == SIR_data['I0'].max()].index[0]-SIR_data.index[0])*2
+    duration = (SIR_data['I'].loc[SIR_data['I'] == SIR_data['I'].max()].index[0]-SIR_data.index[0])*2
 
     dates = [parameter['t0']+duration]
     for i in range(duration.days, forecast):
