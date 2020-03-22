@@ -15,6 +15,10 @@
 		"Puerto Rico": {
 			"Province/State": "Puerto Rico",
 			"Country/Region": "US"
+		},
+		"Cape Verde": {
+			"Province/State": "Cape Verde",
+			"Country/Region": "Cabo Verde"
 		}
 		
 	},

@@ -18,7 +18,7 @@ def addmeasures(parameter, date, scaling):
     return parameter
 
 
-def parameterestimation(data, country, threshold=20, output=False, forecast=40, fristsegment=10, lastsegement=4):
+def parameterestimation(data, country, threshold=20, output=False, forecast=50, fristsegment=15, lastsegement=4):
 
     def linear(x, A, B):
         return A+B*x
