@@ -8,3 +8,6 @@ ECDC_data processes data from ECDC
  
  
 CSSEGIS processes data from John Hopkins University
+
+published under:
+https://cssegis.herokuapp.com/
