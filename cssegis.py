@@ -7,14 +7,13 @@ from datetime import timedelta, date
 from time import mktime
 
 import os
-import json
 
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
 import plotly.express as px
 
-from DataPreparation import load_covid19_data
+from DataPreparation import load_covid19_data, load_world_data
 from DataPlotting import plotdata
 from ParameterEstimation import parameterestimation, addmeasures
 from SIR import SIRmodel
@@ -23,24 +22,8 @@ from SIR import SIRmodel
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 data = load_covid19_data()
+world_map = load_world_data()
 
-with open(os.path.join('data', 'World_map', 'world.geo.json')) as f:
-    world_map = json.load(f)
-for i in range(len(world_map['features'])):
-    world_map['features'][i]['id'] = world_map['features'][i]['properties']['iso_a3']
-
-
-# diff/(confirmend-diff-death-recovered)
-data['infectionrate'] = dict()
-data['infectionrate']['data'] = data['confirmed_nzd']['data'].diff().div((data['confirmed_nzd']['data']-data['confirmed_nzd']['data'].diff()-data['deaths_nzd']['data']-data['recovered_nzd']['data']))
-
-
-# (data['confirmed_nzd']['data']-data['recovered_nzd']['data']-data['deaths_nzd']['data'])['KOR']
-
-# parameter = parameterestimation(data['confirmed']['data'], 'de', output=True)
-# SIRmodel(data, 'AUT', parameter, forecast=300, output=True)
-# parameter = addmeasures(parameter, date(2020, 3, 8), 0.6)
-# SIR_data = SIRmodel(data, 'AUT', parameter, forecast=300, output=True)
 
 # Dash part
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)

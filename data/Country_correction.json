@@ -22,6 +22,9 @@
 		}
 		
 	},
-	"To_drop": [ "xxx", "xxx", "xxx" ]
-		
+	"To_drop": [ "xxx", "xxx", "xxx" ],
+	
+	"worldmap": {
+		"Kosovo": "RKS"
+		}
 }

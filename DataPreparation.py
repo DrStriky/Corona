@@ -46,7 +46,7 @@ def load_cssegis_data(key):
     data['file'] = os.path.join('data', 'CSSEGISandData', os.path.basename(urls[key]))
 
     # update data if older than 12 hours
-    if time.time()-os.path.getmtime(data['file']) > 60*60*1:
+    if time.time()-os.path.getmtime(data['file']) > 60*60*12:
         print('Beginning file download with requests')
         with open(data['file'], 'wb') as f:
             r = requests.get(urls[key])
@@ -125,3 +125,21 @@ def load_covid19_data():
     data['population'] = population
 
     return data
+
+
+def load_world_data():
+    """ load world data
+    """
+    with open(os.path.join('data', 'World_map', 'world.geo.json')) as f:
+        world_map = json.load(f)
+    for i in range(len(world_map['features'])):
+        world_map['features'][i]['id'] = world_map['features'][i]['properties']['iso_a3']
+
+    correction = load_country_correction()
+    for key, value in correction['worldmap'].items():
+        for country in world_map['features']:
+            if country['properties']['sovereignt'] == key:
+                country['properties']['iso_a3'] = value
+                country['id'] = value
+
+    return world_map
