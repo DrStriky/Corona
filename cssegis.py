@@ -23,7 +23,7 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 data = load_covid19_data()
 world_map = load_world_data()
-
+a=5
 
 # Dash part
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
@@ -93,7 +93,7 @@ def create_data_series(data, country, title):
             'title': {'text': title+' for '+country},
             'yaxis': {'showgrid': True},
             'xaxis': {'showgrid': True},
-            'updatemenus': [{'buttons': [{'args': ['yaxis.type', 'linear'], 'label': 'linear', 'method': 'relayout'}, {'args': ['yaxis.type', 'log'], 'label': 'logarithmic', 'method': 'relayout'}], 'x': 0.05, 'xanchor': 'left'}]
+            'updatemenus': [{'buttons': [{'args': ['yaxis.type', 'linear'], 'label': 'linear', 'method': 'relayout'}, {'args': ['yaxis.type', 'log'], 'label': 'logarithmic', 'method': 'relayout'}], 'x': 0.05, 'xanchor': 'left'}],
         }
     }
 

@@ -23,6 +23,14 @@
 		"Timor-Leste": {
 			"Province/State": "Timor-Leste",
 			"Country/Region": "East Timor"
+		},
+		"The Bahamas": {
+			"Province/State": "The Bahamas",
+			"Country/Region": "Bahamas, The"
+		},
+		"The Gambia": {
+			"Province/State": "The Gambia",
+			"Country/Region": "Gambia, The"
 		}
 		
 	},
