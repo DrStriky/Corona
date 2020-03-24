@@ -23,7 +23,9 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 data = load_covid19_data()
 world_map = load_world_data()
-a=5
+
+data['infectionrate'] = dict()
+data['infectionrate']['data'] = data['confirmed_nzd']['data'].diff().div((data['confirmed_nzd']['data']-data['confirmed_nzd']['data'].diff()-data['deaths_nzd']['data']-data['recovered_nzd']['data']))
 
 # Dash part
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
