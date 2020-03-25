@@ -14,9 +14,8 @@ import json
 
 
 # urls for downloading data from John Hopkins University
-urls = {'confirmed': 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv',
-        'deaths': 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Deaths.csv',
-        'recovered': 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Recovered.csv'
+urls = {'confirmed': 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv',
+        'deaths': 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv',
         }
 
 
@@ -72,7 +71,7 @@ def load_cssegis_data(key):
 
     data['data_complete'] = pd.DataFrame(dummy.loc[4:, :].to_numpy(), index=index, columns=columns)
     data['data'] = data['data_complete'].groupby(['Country/Region'], axis=1).sum()
-    data['data'].drop('Cruise Ship', axis=1, inplace=True)
+    data['data'].drop('Diamond Princess', axis=1, inplace=True)
 
     # country codes to
     country_code_map = load_country_code_map()

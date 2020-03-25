@@ -25,7 +25,7 @@ data = load_covid19_data()
 world_map = load_world_data()
 
 data['infectionrate'] = dict()
-data['infectionrate']['data'] = data['confirmed_nzd']['data'].diff().div((data['confirmed_nzd']['data']-data['confirmed_nzd']['data'].diff()-data['deaths_nzd']['data']-data['recovered_nzd']['data']))
+data['infectionrate']['data'] = data['confirmed_nzd']['data'].diff().div((data['confirmed_nzd']['data']-data['confirmed_nzd']['data'].diff()-data['deaths_nzd']['data']))
 
 # Dash part
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
@@ -41,19 +41,17 @@ app.layout = html.Div([html.Div([html.H1('Covid-19 data by country')],
                                                        {'label': 'deaths', 'value': 'deaths'},
                                                        {'label': 'deaths normalizied', 'value': 'deaths_nzd'},
                                                        {'label': 'infection rate', 'value': 'infectionrate'},
-                                                       {'label': 'recovered', 'value': 'recovered'},
-                                                       {'label': 'recovered normalizied', 'value': 'recovered_nzd'}
                                                        ],
                                               style={'display': 'block', 'margin-left': 'auto', 'margin-right': 'auto',
                                                      'width': '70%'},
                                               className='six columns')], className='row'),
                        html.Div([dcc.Slider(id='date_Slider',
                                             updatemode='mouseup',
-                                            min=mktime(data['recovered_nzd']['data'].index.min().timetuple()),
-                                            max=mktime(data['recovered_nzd']['data'].index.max().timetuple()),
+                                            min=mktime(data['confirmed']['data'].index.min().timetuple()),
+                                            max=mktime(data['confirmed']['data'].index.max().timetuple()),
                                             step=mktime((date.today()+timedelta(days=1)).timetuple())-mktime(date.today().timetuple()),
                                             value=mktime((date.today()-timedelta(days=2)).timetuple()),
-                                            marks={int(mktime(xx.timetuple())): {'label': xx.isoformat(), 'style': {'writing-mode': 'vertical-rl', 'text-orientation': 'use-glyph-orientation'}} for xx in data['recovered_nzd']['data'][np.arange(len(data['recovered_nzd']['data'])) % 2 == 0].index},
+                                            marks={int(mktime(xx.timetuple())): {'label': xx.isoformat(), 'style': {'writing-mode': 'vertical-rl', 'text-orientation': 'use-glyph-orientation'}} for xx in data['confirmed']['data'][np.arange(len(data['confirmed']['data'])) % 2 == 0].index},
                                             )], style={'marginBottom': '5em'}
                                 ),
                        html.Div([dcc.Graph(id='graph_map', clickData={'points': [{'location': 'AUT'}]})
