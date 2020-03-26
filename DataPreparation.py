@@ -36,7 +36,7 @@ def load_country_correction():
     return country_correction
 
 
-def load_cssegis_data(key):
+def load_cssegis_data(key, forceupdate=False):
     """ load and possibly update corona pandemics data from John Hopkins
     university """
     data = {}
@@ -45,7 +45,7 @@ def load_cssegis_data(key):
     data['file'] = os.path.join('data', 'CSSEGISandData', os.path.basename(urls[key]))
 
     # update data if older than 12 hours
-    if time.time()-os.path.getmtime(data['file']) > 60*60*12*8:
+    if time.time()-os.path.getmtime(data['file']) > 60*60*12*8 or forceupdate:
         print('Beginning file download with requests')
         with open(data['file'], 'wb') as f:
             r = requests.get(urls[key])
@@ -81,12 +81,12 @@ def load_cssegis_data(key):
     return data
 
 
-def load_all_cssegis_data(data_dict={}):
+def load_all_cssegis_data(data_dict={}, forceupdate=False):
     """ laod all data from John Hopkins university
      currently Confirmed cases, Deaths and Recovered Cases
     """
     for key in urls.keys():
-        data_dict[key] = load_cssegis_data(key)
+        data_dict[key] = load_cssegis_data(key, forceupdate=forceupdate)
     return data_dict
 
 
@@ -109,11 +109,11 @@ def normalize_by_population(df, population=load_population()):
     return df_normalized
 
 
-def load_covid19_data():
+def load_covid19_data(forceupdate=False):
     """ load data from John Hopkins University and adds the normalized per
     time series (i.e. time series as percent of the countries population)
     """
-    data = load_all_cssegis_data()
+    data = load_all_cssegis_data(forceupdate=forceupdate)
 
     population = load_population()
     data_nzd = {}
