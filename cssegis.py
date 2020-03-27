@@ -25,7 +25,7 @@ data = load_covid19_data()
 world_map = load_world_data()
 
 data['infectionrate'] = dict()
-data['infectionrate']['data'] = data['confirmed_nzd']['data'].diff().div((data['confirmed_nzd']['data']-data['confirmed_nzd']['data'].diff()-data['deaths_nzd']['data']))
+data['infectionrate']['data'] = data['confirmed_nzd']['data'].diff().div((data['confirmed_nzd']['data']-data['confirmed_nzd']['data'].diff()-data['deaths_nzd']['data']-data['recovered_nzd']['data']))
 
 # Dash part
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
@@ -41,6 +41,8 @@ app.layout = html.Div([html.Div([html.H1('Covid-19 data by country')],
                                                        {'label': 'deaths', 'value': 'deaths'},
                                                        {'label': 'deaths normalizied', 'value': 'deaths_nzd'},
                                                        {'label': 'infection rate', 'value': 'infectionrate'},
+                                                       {'label': 'recovered', 'value': 'recovered'},
+                                                       {'label': 'recovered normalizied', 'value': 'recovered_nzd'},
                                                        ],
                                               style={'display': 'block', 'margin-left': 'auto', 'margin-right': 'auto',
                                                      'width': '70%'},
