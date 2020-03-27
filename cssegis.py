@@ -22,7 +22,7 @@ from SIR import SIRmodel
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 data = load_covid19_data()
-world_map = load_world_data() 
+world_map = load_world_data()
 
 data['infectionrate'] = dict()
 data['infectionrate']['data'] = data['confirmed_nzd']['data'].diff().div((data['confirmed_nzd']['data']-data['confirmed_nzd']['data'].diff()-data['deaths_nzd']['data']))
