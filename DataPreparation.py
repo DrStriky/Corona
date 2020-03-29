@@ -73,6 +73,7 @@ def load_cssegis_data(key, forceupdate=False):
     data['data_complete'] = pd.DataFrame(dummy.loc[4:, :].to_numpy(), index=index, columns=columns)
     data['data'] = data['data_complete'].groupby(['Country/Region'], axis=1).sum()
     data['data'].drop('Diamond Princess', axis=1, inplace=True)
+    data['data'].drop('MS Zaandam', axis=1, inplace=True)
 
     # country codes to
     country_code_map = load_country_code_map()
