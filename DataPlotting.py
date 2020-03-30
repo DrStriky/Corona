@@ -10,6 +10,7 @@ import pandas as pd
 import numpy as np
 from datetime import date, timedelta
 
+from scipy.stats.mstats import gmean
 import os
 
 shapefile = os.path.join('data', 'World_map', 'ne_50m_admin_0_countries.shp')
@@ -68,3 +69,25 @@ def plotdata(data, title, ylabel, date=date.today()-timedelta(days=1), quantile=
     ax.set_aspect('equal', 'box')
 
     plt.show()
+
+
+def plot_growth_rate(data: pd.Series, smoothing_window: int = 4) -> None:
+    """
+    plots the daily growth rate of the time series data (i.e. index of data
+    must consecutive days as DateTime-objects)
+    """
+
+    # compute daily growth rate
+    rates = data / data.shift(1, pd.to_timedelta('1d'))
+    rates = rates.dropna()
+
+    # smoothen by computing thee geometric over a smoothing window
+    # of the specified lenght
+    rates_smooth = rates.rolling(window= smoothing_window * pd.to_timedelta('1d')).apply(gmean)
+    rates_smooth = rates_smooth.dropna()
+
+    plt.plot(rates_smooth)
+    plt.plot(rates)
+    plt.legend(['Smooth', 'Original'])
+    plt.show()
+    
