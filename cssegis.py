@@ -53,7 +53,7 @@ app.layout = html.Div([html.Div([html.H1('Covid-19 data by country')],
                                             max=mktime(data['confirmed']['data'].index.max().timetuple()),
                                             step=mktime((date.today()+timedelta(days=1)).timetuple())-mktime(date.today().timetuple()),
                                             value=mktime((date.today()-timedelta(days=2)).timetuple()),
-                                            marks={int(mktime(xx.timetuple())): {'label': xx.isoformat(), 'style': {'writing-mode': 'vertical-rl', 'text-orientation': 'use-glyph-orientation'}} for xx in data['confirmed']['data'][np.arange(len(data['confirmed']['data'])) % 2 == 0].index},
+                                            marks={int(mktime(xx.timetuple())): {'label': xx.strftime('%Y-%m-%d'), 'style': {'writing-mode': 'vertical-rl', 'text-orientation': 'use-glyph-orientation'}} for xx in data['confirmed']['data'][np.arange(len(data['confirmed']['data'])) % 2 == 0].index},
                                             )], style={'marginBottom': '5em'}
                                 ),
                        html.Div([dcc.Graph(id='graph_map', clickData={'points': [{'location': 'AUT'}]})
