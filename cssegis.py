@@ -137,7 +137,7 @@ def update_data_series(clickData, selected, options):
     dash.dependencies.Output('graph_model', 'figure'),
     [dash.dependencies.Input('graph_map', 'clickData'), dash.dependencies.Input('metric-selected', 'value'), dash.dependencies.Input('metric-selected', 'options')])
 def update_model_series(clickData, selected, options):
-    parameter = parameterestimation(data['confirmed']['data'], clickData['points'][0]['location'])
+    parameter = parameterestimation(data['confirmed']['data']-(data['deaths']['data']+data['recovered']['data']), clickData['points'][0]['location'])
     data_model = SIRmodel(data, clickData['points'][0]['location'], parameter, forecast=600)
     return create_model_series(data_model, clickData['points'][0]['location'], [entry['label'] for entry in options if entry['value'] == selected][0])
 
