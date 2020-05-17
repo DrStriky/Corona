@@ -61,7 +61,8 @@ app.layout = html.Div([html.Div([html.H1('Covid-19 data by country')],
                        html.Div([dcc.Graph(id='graph_data'),
                                  dcc.Graph(id='graph_model')
                                  ], style={'display': 'inline-block', 'width': '49%'}),
-                       html.Footer(children='Programmed by Jonathan & Florian under quarantine in dash'),
+                       html.Footer(children='Programmed by Florian under quarantine in dash'),
+                       html.A('Source data', href='https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv'),
                        ], className='container', style={'max-width': '1800px'})
 
 
