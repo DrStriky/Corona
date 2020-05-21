@@ -3,6 +3,8 @@
 Created on Tue Mar 17 08:33:58 2020
 
 @author: pribahsn
+
+implementation of a virologiacl SIR model
 """
 import pandas as pd
 import numpy as np
@@ -12,8 +14,8 @@ from datetime import timedelta
 from scipy.integrate import odeint
 
 
-def SIRmodel(data, country, parameter, output=False, forecast=600):
-
+def sir_model(data, country, parameter, output=False, forecast=600):
+    """SIR model with 'ongoing' data and with curefew"""
     def deriv(y, t, N, beta, gamma):
         S, I, R = y
         dSdt = -beta * S * I / N

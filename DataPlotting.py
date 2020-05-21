@@ -3,6 +3,8 @@
 Created on Sat Mar 14 22:34:56 2020
 
 @author: pribahsn
+
+support files; not used in main application
 """
 import geopandas as gpd
 import matplotlib.pyplot as plt

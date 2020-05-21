@@ -3,6 +3,11 @@
 Created on Tue Mar 17 08:06:35 2020
 
 @author: pribahsn
+
+paramter estimation for the SIR model
+fittes beta from infected at the beginning and the end
+trys to get the curefew point
+
 """
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -13,13 +18,14 @@ from scipy.optimize import curve_fit
 
 
 def addmeasures(parameter, date, scaling):
+    """adds a mesurment virology wise int the dataframe"""
     parameter['betagamma'] = parameter['betagamma'].append(pd.DataFrame({'beta': parameter['betagamma'].iloc[0]['beta']*scaling, 'gamma': parameter['betagamma'].iloc[0]['gamma']}, index=[date]), sort=True)
 
     return parameter
 
 
 def parameterestimation(data, country, threshold=20, output=False, forecast=50, fristsegment=15, lastsegement=4):
-
+    """fits the paramters for SIR model"""
     def linear(x, A, B):
         return A+B*x
 

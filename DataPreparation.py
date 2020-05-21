@@ -3,14 +3,18 @@
 """
 Created on Sat Mar 14 21:16:54 2020
 
-@author: jonathan
+load data
+data preperation for further processing
+normaliziation 
+correction of country string
 """
 
-import pandas as pd
 import os
 import requests
 import time
 import json
+
+import pandas as pd
 
 
 # urls for downloading data from John Hopkins University
@@ -57,9 +61,9 @@ def load_cssegis_data(key, forceupdate=False):
 
     # fix 'wrong' data
     country_corrections = load_country_correction()
-    for key, value in country_corrections['To Country'].items():
-        dummy.at[dummy[dummy['Country/Region'] == key].index, 'Province/State'] = country_corrections['To Country'][key]['Province/State']
-        dummy.at[dummy[dummy['Country/Region'] == key].index, 'Country/Region'] = country_corrections['To Country'][key]['Country/Region']
+    for key_country in country_corrections['To Country'].keys():
+        dummy.at[dummy[dummy['Country/Region'] == key_country].index, 'Province/State'] = country_corrections['To Country'][key_country]['Province/State']
+        dummy.at[dummy[dummy['Country/Region'] == key_country].index, 'Country/Region'] = country_corrections['To Country'][key_country]['Country/Region']
 
     dummy = dummy.T
     dummy.reset_index(inplace=True)

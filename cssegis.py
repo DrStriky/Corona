@@ -1,12 +1,16 @@
-import geopandas as gpd
-import pandas as pd
-import matplotlib.pyplot as plt
-import numpy as np
+"""
+@author: pribahsn
+
+Main file for Covid app
+basically contains the all the dash elements
+
+data, and models are importet seperatly
+"""
 
 from datetime import timedelta, date
 from time import mktime
 
-import os
+import numpy as np
 
 import dash
 import dash_core_components as dcc
@@ -14,9 +18,8 @@ import dash_html_components as html
 import plotly.express as px
 
 from DataPreparation import load_covid19_data, load_world_data
-from DataPlotting import plotdata
-from ParameterEstimation import parameterestimation, addmeasures
-from SIR import SIRmodel
+from ParameterEstimation import parameterestimation
+from SIR import sir_model
 
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
@@ -66,7 +69,8 @@ app.layout = html.Div([html.Div([html.H1('Covid-19 data by country')],
                        ], className='container', style={'max-width': '1800px'})
 
 
-def create_map(selected, title, setdate):
+def create_map(selected, setdate):
+    """Create the map element in the dashboard"""
     new_data = data[selected]['data'].T[date.fromtimestamp(setdate)].to_frame().reset_index()
     new_data.columns = ['country', 'number']
     figure = px.choropleth_mapbox(data_frame=new_data,
@@ -84,11 +88,12 @@ def create_map(selected, title, setdate):
     return figure
 
 
-def create_data_series(data, country, title):
+def create_data_series(data_series, country, title):
+    """Create the data series (XY plot) element in the dashboard"""
     return {
         'data': [dict(
-            x=data.index,
-            y=data[country],
+            x=data_series.index,
+            y=data_series[country],
             mode='lines+markers'
         )],
         'layout': {
@@ -101,14 +106,15 @@ def create_data_series(data, country, title):
     }
 
 
-def create_model_series(data, country, title):
+def create_model_series(data_series, country):
+    """"Create the model series (XY plot) element in the dashboard"""
     return {
-        'data': [dict(x=data.index, y=data['S0'], mode='lines', line={'dash': 'dash', 'color': '#1f77b4'}, name='Susceptible w/o curfew'),
-                 dict(x=data.index, y=data['S'], mode='lines+markers', line={'color': '#1f77b4'}, name='Susceptible'),
-                 dict(x=data.index, y=data['R0'], mode='lines', line={'dash': 'dash', 'color': '#2ca02c'}, name='Recoverd w/o curfew'),
-                 dict(x=data.index, y=data['R'], mode='lines+markers', line={'color': '#2ca02c'}, name='Recoverd'), 
-                 dict(x=data.index, y=data['I0'], mode='lines', line={'dash': 'dash', 'color': '#ff7f0e'}, name='Infected w/o curfew'),
-                 dict(x=data.index, y=data['I'], mode='lines+markers', line={'color': '#ff7f0e'}, name='Infected')
+        'data': [dict(x=data_series.index, y=data_series['S0'], mode='lines', line={'dash': 'dash', 'color': '#1f77b4'}, name='Susceptible w/o curfew'),
+                 dict(x=data_series.index, y=data_series['S'], mode='lines+markers', line={'color': '#1f77b4'}, name='Susceptible'),
+                 dict(x=data_series.index, y=data_series['R0'], mode='lines', line={'dash': 'dash', 'color': '#2ca02c'}, name='Recoverd w/o curfew'),
+                 dict(x=data_series.index, y=data_series['R'], mode='lines+markers', line={'color': '#2ca02c'}, name='Recoverd'),
+                 dict(x=data_series.index, y=data_series['I0'], mode='lines', line={'dash': 'dash', 'color': '#ff7f0e'}, name='Infected w/o curfew'),
+                 dict(x=data_series.index, y=data_series['I'], mode='lines+markers', line={'color': '#ff7f0e'}, name='Infected')
                  ],
         'layout': {
             'height': 400,
@@ -124,13 +130,15 @@ def create_model_series(data, country, title):
     [dash.dependencies.Input('metric-selected', 'value'), dash.dependencies.Input('metric-selected', 'options'), dash.dependencies.Input('date_Slider', 'value')]
 )
 def update_map(selected, options, setdate):
-    return create_map(selected, [entry['label'] for entry in options if entry['value'] == selected][0], setdate)
+    """"update the map triggered by the callback"""
+    return create_map(selected, setdate)
 
 
 @app.callback(
     dash.dependencies.Output('graph_data', 'figure'),
     [dash.dependencies.Input('graph_map', 'clickData'), dash.dependencies.Input('metric-selected', 'value'), dash.dependencies.Input('metric-selected', 'options')])
 def update_data_series(clickData, selected, options):
+    """"update the data series triggered by the callback"""
     return create_data_series(data[selected]['data'], clickData['points'][0]['location'], [entry['label'] for entry in options if entry['value'] == selected][0])
 
 
@@ -138,9 +146,10 @@ def update_data_series(clickData, selected, options):
     dash.dependencies.Output('graph_model', 'figure'),
     [dash.dependencies.Input('graph_map', 'clickData'), dash.dependencies.Input('metric-selected', 'value'), dash.dependencies.Input('metric-selected', 'options')])
 def update_model_series(clickData, selected, options):
+    """"update the model triggered by the callback"""
     parameter = parameterestimation(data['confirmed']['data']-(data['deaths']['data']+data['recovered']['data']), clickData['points'][0]['location'])
-    data_model = SIRmodel(data, clickData['points'][0]['location'], parameter, forecast=600)
-    return create_model_series(data_model, clickData['points'][0]['location'], [entry['label'] for entry in options if entry['value'] == selected][0])
+    data_model = sir_model(data, clickData['points'][0]['location'], parameter, forecast=600)
+    return create_model_series(data_model, clickData['points'][0]['location'])  # title  [entry['label'] for entry in options if entry['value'] == selected][0]
 
 
 if __name__ == '__main__':
