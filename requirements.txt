@@ -41,7 +41,7 @@ pandas == 1.0.1
 plotly == 4.5.2
 
 # Corona\DataPreparation.py: 11
-requests == 2.23.0
+requests == 2.31.0
 
 # Corona\SIR.py: 11
 # Corona\ParameterEstimation.py: 12
